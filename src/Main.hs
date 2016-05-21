@@ -8,11 +8,13 @@ import Data.Maybe (catMaybes)
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime)
 import Data.Time.Format
+import Data.Version (showVersion)
 import Database.SQLite.Simple
 import Network.Wreq hiding (header)
 import Network.Wreq.Session (Session)
 import qualified Network.Wreq.Session as S
 import Options.Applicative
+import Paths_pinboard_notes_backup (version)
 import Prelude hiding (id)
 
 
@@ -78,11 +80,14 @@ optionsParser = ProgramOptions
                      <> "This file will be created if it does not already exist. "
                      <> "Notes are always stored in a table called “notes”."
 
+addVersionOption :: Options.Applicative.Parser (a -> a)
+addVersionOption = infoOption ("pnbackup " <> showVersion version) (long "version")
+
 commandLineOptions :: ParserInfo ProgramOptions
-commandLineOptions = info (helper <*> optionsParser) parserInfo
+commandLineOptions = info (addVersionOption <*> (helper <*> optionsParser)) parserInfo
     where parserInfo = fullDesc
                        <> header "pnbackup - Back up the notes you’ve saved to Pinboard"
-                       <> footer "Copyright © 2016 Benjamin D. Esham."
+                       <> footer "Copyright © 2016 Benjamin D. Esham"
 
 main :: IO ()
 main = execParser commandLineOptions >>= main'
