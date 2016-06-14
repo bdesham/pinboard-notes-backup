@@ -11,8 +11,8 @@ import Paths_pinboard_notes_backup (version)
 import Pinboard
 import Prelude hiding (id)
 import System.Exit (exitFailure)
+import System.Log.Logger
 import Types
-
 
 -- * Constants
 
@@ -28,6 +28,12 @@ createTableQuery = mconcat [ "CREATE TABLE IF NOT EXISTS notes "
 
 insertQuery :: Query
 insertQuery = "INSERT INTO notes (id, title, text, hash, created, updated) VALUES(?, ?, ?, ?, ?, ?)"
+
+
+-- * Miscellaneous
+
+logInfo :: String -> IO ()
+logInfo = infoM "pnbackup"
 
 
 -- * Command line parsing
@@ -81,14 +87,16 @@ main' (ProgramOptions apiToken databasePath) = do
 
 handleNote :: Connection -> NoteSignature -> PinboardM ()
 handleNote conn (NoteSignature noteId lastUpdated) = do
-    liftIO $ putStrLn $ "handling note " ++ noteId
+    liftIO $ logInfo $ "Handling note " ++ noteId
     lastUpdatedLocally <- liftIO $ query conn "SELECT updated FROM notes WHERE id=?" (Only noteId)
     if length (lastUpdatedLocally :: [Only UTCTime]) == 0
-       then (liftIO $ putStrLn "need to download this one") >> updateNoteFromServer conn noteId
+       then updateNoteFromServer conn noteId
        else if (fromOnly $ head lastUpdatedLocally) < lastUpdated
-               then liftIO $ putStrLn "need to update this one"
-               else liftIO $ putStrLn "this one is up to date"
+               then liftIO $ logInfo "This note needs to be updated"
+               else liftIO $ logInfo "This note is already up to date"
 
 updateNoteFromServer :: Connection -> String -> PinboardM ()
 updateNoteFromServer conn noteId = do
-    liftIO $ putStrLn ("updating note " ++ noteId)
+    liftIO $ logInfo ("Downloading note " ++ noteId ++ " from the server")
+    note <- getNote noteId
+    liftIO $ execute conn insertQuery note
