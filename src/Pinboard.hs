@@ -14,6 +14,7 @@ import Data.Monoid ((<>))
 import Data.Text (Text)
 import qualified Data.Text as T (pack)
 import Data.Time.Clock (NominalDiffTime, UTCTime, diffUTCTime, getCurrentTime)
+import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Time.Format
 import Network.Wreq hiding (get, header, put)
 import Network.Wreq.Session (Session)
@@ -51,9 +52,8 @@ newtype PinboardM a = Thing {
 
 runPinboard :: String -> PinboardM a -> IO (Either Text a)
 runPinboard token k = S.withAPISession $ \sess -> do
-    currentTime <- getCurrentTime
     let config = PinboardConfig token sess
-        initialState = PinboardState currentTime
+        initialState = PinboardState (posixSecondsToUTCTime 0)
     runExceptT (evalStateT (runReaderT (runPinboardM k) config) initialState)
 
 -- | Takes a URL, appends the API token, makes a GET request, and returns the
@@ -66,9 +66,6 @@ performRequest url = do
     token <- c_token <$> ask
 
     let urlWithToken = url ++ "&auth_token=" ++ token
-
-    -- debug
-    liftIO $ putStrLn $ "previous time was " <> (show previousTime)
 
     currentTime <- liftIO $ getCurrentTime
     let timeToWait = delayTime - (diffUTCTime currentTime previousTime)
