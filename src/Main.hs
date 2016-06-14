@@ -92,7 +92,7 @@ handleNote conn (NoteSignature noteId lastUpdated) = do
     if length (lastUpdatedLocally :: [Only UTCTime]) == 0
        then updateNoteFromServer conn noteId
        else if (fromOnly $ head lastUpdatedLocally) < lastUpdated
-               then liftIO $ logInfo "This note needs to be updated"
+               then updateNoteFromServer conn noteId
                else liftIO $ logInfo "This note is already up to date"
 
 updateNoteFromServer :: Connection -> String -> PinboardM ()
