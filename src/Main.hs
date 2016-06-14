@@ -2,6 +2,7 @@ module Main where
 
 import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (for_)
+import qualified Data.Text.IO as T (putStrLn)
 import Data.Time.Clock (UTCTime)
 import Data.Version (showVersion)
 import Database.SQLite.Simple
@@ -75,7 +76,7 @@ main' (ProgramOptions apiToken databasePath) = do
         notesList <- getNotesList
         for_ notesList $ handleNote conn
     case result of
-      Left err -> putStrLn err >> exitFailure
+      Left err -> T.putStrLn err >> exitFailure
       Right _ -> return ()
 
 handleNote :: Connection -> NoteSignature -> PinboardM ()

@@ -11,6 +11,8 @@ import Data.Aeson.Types
 import Data.ByteString.Lazy (ByteString)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
+import Data.Text (Text)
+import qualified Data.Text as T (pack)
 import Data.Time.Clock (NominalDiffTime, UTCTime, diffUTCTime, getCurrentTime)
 import Data.Time.Format
 import Network.Wreq hiding (get, header, put)
@@ -31,7 +33,7 @@ allNotesUrl = "https://api.pinboard.in/v1/notes/list?format=json"
 noteUrl :: String -> String
 noteUrl noteId = "https://api.pinboard.in/v1/notes/" ++ noteId ++ "?format=json"
 
-returnOrThrow :: Maybe a -> String -> PinboardM a
+returnOrThrow :: Maybe a -> Text -> PinboardM a
 returnOrThrow Nothing err = throwError err
 returnOrThrow (Just value) _ = return value
 
@@ -43,11 +45,11 @@ data PinboardState = PinboardState { s_lastSuccess :: UTCTime
                                    }
 
 newtype PinboardM a = Thing {
-    runPinboardM :: ReaderT PinboardConfig (StateT PinboardState (ExceptT String IO)) a
+    runPinboardM :: ReaderT PinboardConfig (StateT PinboardState (ExceptT Text IO)) a
 } deriving (Applicative, Functor, Monad, MonadIO, MonadReader PinboardConfig,
-            MonadState PinboardState, MonadError String)
+            MonadState PinboardState, MonadError Text)
 
-runPinboard :: String -> PinboardM a -> IO (Either String a)
+runPinboard :: String -> PinboardM a -> IO (Either Text a)
 runPinboard token k = S.withAPISession $ \sess -> do
     currentTime <- getCurrentTime
     let config = PinboardConfig token sess
@@ -108,7 +110,7 @@ getNote noteId = do
                 updated <- obj .: "updated_at"
                 return $ Note nid title text hash created updated
             return note
-    returnOrThrow noteObject ("Couldn't retrieve note " ++ noteId)
+    returnOrThrow noteObject ("Couldn't retrieve note " <> T.pack noteId)
 
 getNotesList :: PinboardM [NoteSignature]
 getNotesList = do
