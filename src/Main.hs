@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (for_)
 import qualified Data.Text.IO as T (putStrLn)
@@ -32,14 +33,24 @@ insertQuery = "INSERT INTO notes (id, title, text, hash, created, updated) VALUE
 
 -- * Miscellaneous
 
+loggerName :: String
+loggerName = "pnbackup"
+
 logInfo :: String -> IO ()
-logInfo = infoM "pnbackup"
+logInfo = infoM loggerName
+
+logDebug :: String -> IO ()
+logDebug = debugM loggerName
 
 
 -- * Command line parsing
 
+data Verbosity = Verbose | Standard
+    deriving (Eq)
+
 data ProgramOptions = ProgramOptions { o_apiToken :: String
                                      , o_databasePath :: String
+                                     , o_verbosity :: Verbosity
                                      }
 
 optionsParser :: Options.Applicative.Parser ProgramOptions
@@ -51,12 +62,16 @@ optionsParser = ProgramOptions
     <*> argument str (metavar "PATH"
                       <> value "Notes.sqlite"
                       <> help pathHelp)
+    <*> flag Standard Verbose (short 'v'
+                               <> long "verbose"
+                               <> help verboseHelp)
     where tokenHelp = "Your API token (e.g. maciej:abc123456). "
                       <> "You can find this at <https://pinboard.in/settings/password>."
           pathHelp = "Path to the SQLite database where your notes will be stored. "
                      <> "The default is a file called “Notes.sqlite” in the current directory. "
                      <> "This file will be created if it does not already exist. "
                      <> "Notes are always stored in a table called “notes”."
+          verboseHelp = "Display tons of progress information."
 
 addVersionOption :: Options.Applicative.Parser (a -> a)
 addVersionOption = infoOption ("pnbackup " <> showVersion version) (long "version")
@@ -74,12 +89,17 @@ main = execParser commandLineOptions >>= main'
 -- * The business logic
 
 main' :: ProgramOptions -> IO ()
-main' (ProgramOptions apiToken databasePath) = do
+main' (ProgramOptions apiToken databasePath verbosity) = do
+    updateGlobalLogger loggerName $
+        setLevel (if verbosity == Verbose then DEBUG else INFO)
+
     conn <- open databasePath
     execute_ conn createTableQuery
 
     result <- runPinboard apiToken $ do
+        liftIO $ logInfo "Downloading the list of notes..."
         notesList <- getNotesList
+        liftIO $ logInfo "Processing notes..."
         for_ notesList $ handleNote conn
     case result of
       Left err -> T.putStrLn err >> exitFailure
@@ -87,16 +107,14 @@ main' (ProgramOptions apiToken databasePath) = do
 
 handleNote :: Connection -> NoteSignature -> PinboardM ()
 handleNote conn (NoteSignature noteId lastUpdated) = do
-    liftIO $ logInfo $ "Handling note " ++ noteId
     lastUpdatedLocally <- liftIO $ query conn "SELECT updated FROM notes WHERE id=?" (Only noteId)
     if length (lastUpdatedLocally :: [Only UTCTime]) == 0
        then updateNoteFromServer conn noteId
-       else if (fromOnly $ head lastUpdatedLocally) < lastUpdated
-               then updateNoteFromServer conn noteId
-               else liftIO $ logInfo "This note is already up to date"
+       else when ((fromOnly $ head lastUpdatedLocally) < lastUpdated) $
+                updateNoteFromServer conn noteId
 
 updateNoteFromServer :: Connection -> String -> PinboardM ()
 updateNoteFromServer conn noteId = do
-    liftIO $ logInfo ("Downloading note " ++ noteId ++ " from the server")
+    liftIO $ logDebug ("Downloading note " ++ noteId ++ " from the server")
     note <- getNote noteId
     liftIO $ execute conn insertQuery note
