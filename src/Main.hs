@@ -7,12 +7,12 @@ import qualified Data.Text.IO as T (putStrLn)
 import Data.Time.Clock (UTCTime)
 import Data.Version (showVersion)
 import Database.SQLite.Simple
+import Logging
 import Options.Applicative
 import Paths_pinboard_notes_backup (version)
 import Pinboard
 import Prelude hiding (id)
 import System.Exit (exitFailure)
-import System.Log.Logger
 import Types
 
 -- * Constants
@@ -31,22 +31,7 @@ insertQuery :: Query
 insertQuery = "INSERT INTO notes (id, title, text, hash, created, updated) VALUES(?, ?, ?, ?, ?, ?)"
 
 
--- * Miscellaneous
-
-loggerName :: String
-loggerName = "pnbackup"
-
-logInfo :: String -> IO ()
-logInfo = infoM loggerName
-
-logDebug :: String -> IO ()
-logDebug = debugM loggerName
-
-
 -- * Command line parsing
-
-data Verbosity = Verbose | Standard
-    deriving (Eq)
 
 data ProgramOptions = ProgramOptions { o_apiToken :: String
                                      , o_databasePath :: String
@@ -90,8 +75,7 @@ main = execParser commandLineOptions >>= main'
 
 main' :: ProgramOptions -> IO ()
 main' (ProgramOptions apiToken databasePath verbosity) = do
-    updateGlobalLogger loggerName $
-        setLevel (if verbosity == Verbose then DEBUG else INFO)
+    setApplicationVerbosity verbosity
 
     conn <- open databasePath
     execute_ conn createTableQuery
