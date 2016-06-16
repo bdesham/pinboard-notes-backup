@@ -2,7 +2,7 @@ module Main where
 
 import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (for_)
-import Data.List (foldl')
+import Data.List (foldl', intercalate)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Text.IO as T (putStrLn)
@@ -45,17 +45,17 @@ data NoteStatus = New | Updated | UpToDate
 -- date, respectively.
 data ApplicationResult = ApplicationResult Int Int Int Int
 
-pluralize :: Text -> Text -> Int -> Text
+pluralize :: String -> String -> Int -> String
 pluralize singular _ 1 = "1 " <> singular
-pluralize _ plural n = (T.pack $ show n) <> " " <> plural
+pluralize _ plural n = show n <> " " <> plural
 
 displayResult :: ApplicationResult -> IO ()
 displayResult (ApplicationResult upToDate updated new deleted) = do
-    T.putStrLn $ T.intercalate ", " [ updatedString
-                                    , newString
-                                    , deletedString
-                                    , upToDateString
-                                    ] <> "."
+    logInfo $ intercalate ", " [ updatedString
+                               , newString
+                               , deletedString
+                               , upToDateString
+                               ] <> "."
     where upToDateString = pluralize "note already up-to-date" "notes already up-to-date" upToDate
           updatedString = pluralize "note updated" "notes updated" updated
           newString = pluralize "new note" "new notes" new
