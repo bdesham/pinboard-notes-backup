@@ -20,6 +20,7 @@ executable pnbackup
   build-depends:       base >= 4.7 && < 5
                        , aeson == 0.9.*
                        , bytestring == 0.10.*
+                       , containers == 0.5.*
                        , hslogger == 1.2.*
                        , lens == 4.13.*
                        , lens-aeson == 1.0.*

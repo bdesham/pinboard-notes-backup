@@ -16,6 +16,6 @@ instance ToRow Note where
     toRow (Note n_id n_title n_text n_hash n_created n_updated) =
         toRow (n_id, n_title, n_text, n_hash, n_created, n_updated)
 
-data NoteSignature = NoteSignature { ns_id :: String
+data NoteSignature = NoteSignature { ns_id :: Text
                                    , ns_updated :: UTCTime
                                    }
