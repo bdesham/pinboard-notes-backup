@@ -12,7 +12,6 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Text (Text)
-import qualified Data.Text as T (unpack)
 import Data.Time.Clock (NominalDiffTime, UTCTime, diffUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Time.Format
@@ -31,9 +30,9 @@ delayTime = 3
 allNotesUrl :: String
 allNotesUrl = "https://api.pinboard.in/v1/notes/list?format=json"
 
-noteUrl :: Text -> String
+noteUrl :: NoteId -> String
 noteUrl noteId = "https://api.pinboard.in/v1/notes/" ++ noteIdString ++ "?format=json"
-    where noteIdString = T.unpack noteId
+    where noteIdString = noteIdToString noteId
 
 returnOrThrow :: Maybe a -> Text -> PinboardM a
 returnOrThrow Nothing err = throwError err
@@ -94,7 +93,7 @@ noteSummaryToTuple val = do
         lastUpdatedTime <- parseTimeM False defaultTimeLocale "%Y-%m-%d %H:%M:%S" lastUpdated
         return $ NoteSignature noteId lastUpdatedTime
 
-getNote :: Text -> PinboardM Note
+getNote :: NoteId -> PinboardM Note
 getNote noteId = do
     bodyString <- performRequest $ noteUrl noteId
     let noteObject = do     -- This "do" block is within the Maybe monad
@@ -108,7 +107,7 @@ getNote noteId = do
                 updated <- obj .: "updated_at"
                 return $ Note nid title text hash created updated
             return note
-    returnOrThrow noteObject ("Couldn't retrieve note " <> noteId)
+    returnOrThrow noteObject ("Couldn't retrieve note " <> noteIdToText noteId)
 
 getNotesList :: PinboardM [NoteSignature]
 getNotesList = do

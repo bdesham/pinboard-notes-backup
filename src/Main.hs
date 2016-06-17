@@ -6,8 +6,6 @@ import Data.List (foldl', intercalate)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Text.IO as T (putStrLn)
-import Data.Text (Text)
-import qualified Data.Text as T
 import Data.Time.Clock (UTCTime)
 import Data.Traversable (for)
 import Data.Version (showVersion)
@@ -135,12 +133,12 @@ backUpNotes conn = do
                                (count New statuses)
                                numberToDelete
 
-noteIds :: [NoteSignature] -> Set Text
+noteIds :: [NoteSignature] -> Set NoteId
 noteIds = Set.fromList . map ns_id
 
-deleteNote :: Connection -> Text -> IO ()
+deleteNote :: Connection -> NoteId -> IO ()
 deleteNote conn noteId = do
-    logDebug $ "Deleting note " ++ (T.unpack noteId)
+    logDebug $ "Deleting note " ++ (noteIdToString noteId)
     execute conn "DELETE FROM notes WHERE id=?" (Only noteId)
 
 handleNote :: Connection -> NoteSignature -> PinboardM NoteStatus
@@ -152,9 +150,9 @@ handleNote conn (NoteSignature noteId lastUpdated) = do
                then updateNoteFromServer conn noteId >> return Updated
                else return UpToDate
 
-updateNoteFromServer :: Connection -> Text -> PinboardM ()
+updateNoteFromServer :: Connection -> NoteId -> PinboardM ()
 updateNoteFromServer conn noteId = do
-    liftIO $ logDebug $ "Downloading note " ++ (T.unpack noteId)
+    liftIO $ logDebug $ "Downloading note " ++ (noteIdToString noteId)
     note <- getNote noteId
     liftIO $ execute conn insertQuery note
 
