@@ -3,7 +3,6 @@ module Main where
 import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (for_)
 import Data.List (foldl', intercalate)
-import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Text.IO as T (putStrLn)
 import Data.Time.Clock (UTCTime)
@@ -18,7 +17,7 @@ import Prelude hiding (id)
 import System.Exit (exitFailure)
 import Types
 
--- * Constants
+-- * A couple of long SQLite queries
 
 createTableQuery :: Query
 createTableQuery = mconcat [ "CREATE TABLE IF NOT EXISTS notes "
@@ -122,7 +121,7 @@ backUpNotes conn = do
     liftIO $ logInfo "Processing notes (this may take a while)..."
     localNoteOnlyIds <- liftIO $ query_ conn "SELECT id FROM notes"
     let localNoteIds = (Set.fromList . map fromOnly) localNoteOnlyIds
-        remoteNoteIds = noteIds notesList
+        remoteNoteIds = (Set.fromList . map ns_id) notesList
         notesToDelete = localNoteIds `Set.difference` remoteNoteIds
         numberToDelete = length notesToDelete
     liftIO $ for_ notesToDelete $ deleteNote conn
@@ -132,9 +131,6 @@ backUpNotes conn = do
                                (count Updated statuses)
                                (count New statuses)
                                numberToDelete
-
-noteIds :: [NoteSignature] -> Set NoteId
-noteIds = Set.fromList . map ns_id
 
 deleteNote :: Connection -> NoteId -> IO ()
 deleteNote conn noteId = do
