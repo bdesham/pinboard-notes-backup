@@ -4,7 +4,7 @@ synopsis:            Efficiently back up the notes you’ve saved to Pinboard
 description:         Please see README.md
 homepage:            https://github.com/bdesham/pinboard-notes-backup
 license:             GPL-3
-license-file:        "LICENSE (GPL 3).txt"
+license-file:        LICENSE.txt
 author:              Benjamin Esham
 maintainer:          benjamin@esham.io
 copyright:           2016 Benjamin D. Esham
