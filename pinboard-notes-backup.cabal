@@ -32,4 +32,4 @@ executable pnbackup
                        , transformers == 0.4.*
                        , wreq == 0.4.*
   default-extensions:  OverloadedStrings GeneralizedNewtypeDeriving DeriveFunctor
-  ghc-options:         -Wall -fno-warn-unused-do-bind
+  ghc-options:         -Wall -Werror -fno-warn-unused-do-bind -O
