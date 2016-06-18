@@ -62,8 +62,8 @@ displayResult (ApplicationResult upToDate updated new deleted) = do
 -- * Command line parsing
 
 data ProgramOptions = ProgramOptions { o_apiToken :: String
-                                     , o_databasePath :: String
                                      , o_verbosity :: Verbosity
+                                     , o_databasePath :: String
                                      }
 
 optionsParser :: Options.Applicative.Parser ProgramOptions
@@ -72,19 +72,17 @@ optionsParser = ProgramOptions
                    <> long "token"
                    <> metavar "TOKEN"
                    <> help tokenHelp)
-    <*> argument str (metavar "PATH"
-                      <> value "Notes.sqlite"
-                      <> help pathHelp)
     <*> flag Standard Verbose (short 'v'
                                <> long "verbose"
                                <> help verboseHelp)
+    <*> argument str (metavar "FILE"
+                      <> help pathHelp)
     where tokenHelp = "Your API token (e.g. maciej:abc123456). "
                       <> "You can find this at <https://pinboard.in/settings/password>."
-          pathHelp = "Path to the SQLite database where your notes will be stored. "
-                     <> "The default is a file called “Notes.sqlite” in the current directory. "
+          verboseHelp = "Display detailed progress information."
+          pathHelp = "Filename of the SQLite database where your notes will be stored. "
                      <> "This file will be created if it does not already exist. "
                      <> "Notes are always stored in a table called “notes”."
-          verboseHelp = "Display tons of progress information."
 
 addVersionOption :: Options.Applicative.Parser (a -> a)
 addVersionOption = infoOption ("pnbackup " <> showVersion version) (long "version")
@@ -102,7 +100,7 @@ main = execParser commandLineOptions >>= main'
 -- * The business logic
 
 main' :: ProgramOptions -> IO ()
-main' (ProgramOptions apiToken databasePath verbosity) = do
+main' (ProgramOptions apiToken verbosity databasePath) = do
     setApplicationVerbosity verbosity
 
     conn <- open databasePath
