@@ -1,13 +1,14 @@
 module Pinboard (PinboardM, runPinboard, getNote, getNotesList) where
 
 import Control.Concurrent (threadDelay)
-import Control.Lens ((^.), (^?))
+import Control.Lens ((^.), (^?), (&), (.~))
 import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.State.Class
 import Control.Monad.State.Lazy (StateT, evalStateT)
 import Data.Aeson
 import Data.Aeson.Types
+import Data.ByteString.Char8 (pack)
 import Data.ByteString.Lazy (ByteString)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
@@ -15,9 +16,11 @@ import Data.Text (Text)
 import Data.Time.Clock (NominalDiffTime, UTCTime, diffUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Time.Format
-import Network.Wreq hiding (get, header, put)
+import Data.Version (showVersion)
+import Network.Wreq hiding (get, put)
 import Network.Wreq.Session (Session)
-import qualified Network.Wreq.Session as S (get, withAPISession)
+import qualified Network.Wreq.Session as S (getWith, withAPISession)
+import Paths_pinboard_notes_backup (version)
 import Types
 
 nominalDiffTimeToMicroseconds :: NominalDiffTime -> Int
@@ -56,6 +59,11 @@ runPinboard token k = S.withAPISession $ \sess -> do
         initialState = PinboardState (posixSecondsToUTCTime 0)
     runExceptT (evalStateT (runReaderT (runPinboardM k) config) initialState)
 
+wreqOptions :: Network.Wreq.Options
+wreqOptions = defaults & header "User-Agent" .~ [pack userAgent]
+    where userAgent = "pnbackup/" <> showVersion version <> " (+" <> url <> ")"
+          url = "https://github.com/bdesham/pinboard-notes-backup"
+
 -- | Takes a URL, appends the API token, makes a GET request, and returns the
 -- body of the response (if the status code was 2xx and Wreq gives us a
 -- response body) or else Nothing.
@@ -72,7 +80,7 @@ performRequest url = do
     liftIO $ when (timeToWait > 0) $
         threadDelay (nominalDiffTimeToMicroseconds timeToWait)
 
-    response <- liftIO $ S.get session urlWithToken
+    response <- liftIO $ S.getWith wreqOptions session urlWithToken
 
     newCurrentTime <- liftIO $ getCurrentTime
     put $ PinboardState newCurrentTime
