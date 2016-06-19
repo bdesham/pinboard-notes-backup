@@ -8,11 +8,12 @@ import Control.Monad.State.Class
 import Control.Monad.State.Lazy (StateT, evalStateT)
 import Data.Aeson
 import Data.Aeson.Types
-import Data.ByteString.Char8 (pack)
+import Data.ByteString.Char8 as B (pack)
 import Data.ByteString.Lazy (ByteString)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Text (Text)
+import qualified Data.Text as T
 import Data.Time.Clock (NominalDiffTime, UTCTime, diffUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Time.Format
@@ -59,8 +60,11 @@ runPinboard token k = S.withAPISession $ \sess -> do
         initialState = PinboardState (posixSecondsToUTCTime 0)
     runExceptT (evalStateT (runReaderT (runPinboardM k) config) initialState)
 
-wreqOptions :: Network.Wreq.Options
-wreqOptions = defaults & header "User-Agent" .~ [pack userAgent]
+wreqOptions :: PinboardM Network.Wreq.Options
+wreqOptions = do
+    token <- c_token <$> ask
+    return $ defaults & header "User-Agent" .~ [B.pack userAgent]
+                      & param "auth_token" .~ [T.pack token]
     where userAgent = "pnbackup/" <> showVersion version <> " (+" <> url <> ")"
           url = "https://github.com/bdesham/pinboard-notes-backup"
 
@@ -70,17 +74,14 @@ wreqOptions = defaults & header "User-Agent" .~ [pack userAgent]
 performRequest :: String -> PinboardM ByteString
 performRequest url = do
     previousTime <- s_lastSuccess <$> get
-    session <- c_session <$> ask
-    token <- c_token <$> ask
-
-    let urlWithToken = url ++ "&auth_token=" ++ token
-
     currentTime <- liftIO $ getCurrentTime
     let timeToWait = delayTime - (diffUTCTime currentTime previousTime)
     liftIO $ when (timeToWait > 0) $
         threadDelay (nominalDiffTimeToMicroseconds timeToWait)
 
-    response <- liftIO $ S.getWith wreqOptions session urlWithToken
+    opts <- wreqOptions
+    session <- c_session <$> ask
+    response <- liftIO $ S.getWith opts session url
 
     newCurrentTime <- liftIO $ getCurrentTime
     put $ PinboardState newCurrentTime
