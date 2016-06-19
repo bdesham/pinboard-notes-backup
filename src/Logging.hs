@@ -20,6 +20,9 @@ setApplicationVerbosity :: Verbosity -> IO ()
 setApplicationVerbosity Verbose = updateGlobalLogger loggerName $ setLevel DEBUG
 setApplicationVerbosity Standard = updateGlobalLogger loggerName $ setLevel INFO
 
+logError :: String -> IO ()
+logError = errorM loggerName
+
 logInfo :: String -> IO ()
 logInfo = infoM loggerName
 

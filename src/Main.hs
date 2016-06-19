@@ -4,7 +4,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (for_)
 import Data.List (foldl', intercalate)
 import qualified Data.Set as Set
-import Data.Text.IO as T (putStrLn)
+import qualified Data.Text as T
 import Data.Time.Clock (UTCTime)
 import Data.Traversable (for)
 import Data.Version (showVersion)
@@ -108,7 +108,7 @@ main' (ProgramOptions apiToken verbosity databasePath) = do
 
     result <- runPinboard apiToken $ backUpNotes conn
     case result of
-      Left err -> T.putStrLn err >> exitFailure
+      Left err -> logError (T.unpack err) >> exitFailure
       Right result' -> displayResult result'
 
 backUpNotes :: Connection -> PinboardM ApplicationResult
