@@ -32,10 +32,10 @@ delayTime :: NominalDiffTime
 delayTime = 3
 
 allNotesUrl :: String
-allNotesUrl = "https://api.pinboard.in/v1/notes/list?format=json"
+allNotesUrl = "https://api.pinboard.in/v1/notes/list"
 
 noteUrl :: NoteId -> String
-noteUrl noteId = "https://api.pinboard.in/v1/notes/" ++ noteIdString ++ "?format=json"
+noteUrl noteId = "https://api.pinboard.in/v1/notes/" <> noteIdString
     where noteIdString = noteIdToString noteId
 
 returnOrThrow :: Maybe a -> Text -> PinboardM a
@@ -64,6 +64,7 @@ wreqOptions :: PinboardM Network.Wreq.Options
 wreqOptions = do
     token <- c_token <$> ask
     return $ defaults & header "User-Agent" .~ [B.pack userAgent]
+                      & param "format" .~ ["json"]
                       & param "auth_token" .~ [T.pack token]
     where userAgent = "pnbackup/" <> showVersion version <> " (+" <> url <> ")"
           url = "https://github.com/bdesham/pinboard-notes-backup"
