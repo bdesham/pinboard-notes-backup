@@ -17,6 +17,7 @@ import Prelude hiding (id)
 import System.Exit (exitFailure)
 import Types
 
+
 -- * A couple of long SQLite queries
 
 createTableQuery :: Query

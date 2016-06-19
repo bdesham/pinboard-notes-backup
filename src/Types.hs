@@ -15,6 +15,9 @@ import Database.SQLite.Simple
 import Database.SQLite.Simple.FromField
 import Database.SQLite.Simple.ToField
 
+
+-- * NoteId
+
 newtype NoteId = NoteId Text
     deriving (Eq, Ord, FromField, FromJSON, ToField)
 
@@ -23,6 +26,9 @@ noteIdToText = coerce
 
 noteIdToString :: NoteId -> String
 noteIdToString = T.unpack . noteIdToText
+
+
+-- * Note
 
 data Note = Note { note_id :: NoteId
                  , note_title :: Text
@@ -45,6 +51,9 @@ instance FromJSON Note where
                            o .: "created_at" <*>
                            o .: "updated_at"
     parseJSON other = typeMismatch "Note" other
+
+
+-- * NoteSignature
 
 data NoteSignature = NoteSignature { ns_id :: NoteId
                                    , ns_updated :: UTCTime
