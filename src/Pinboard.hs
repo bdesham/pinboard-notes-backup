@@ -105,18 +105,8 @@ noteSummaryToTuple val = do
 
 getNote :: NoteId -> PinboardM Note
 getNote noteId = do
-    bodyString <- performRequest $ noteUrl noteId
-    let noteObject = do     -- This "do" block is within the Maybe monad
-            bodyObject <- decode bodyString :: Maybe Object
-            note <- flip parseMaybe bodyObject $ \obj -> do
-                nid <- obj .: "id"
-                title <- obj .: "title"
-                text <- obj .: "text"
-                hash <- obj .: "hash"
-                created <- obj .: "created_at"
-                updated <- obj .: "updated_at"
-                return $ Note nid title text hash created updated
-            return note
+    body <- performRequest $ noteUrl noteId
+    let noteObject = decode body :: Maybe Note
     returnOrThrow noteObject ("Couldn't retrieve note " <> noteIdToText noteId)
 
 getNotesList :: PinboardM [NoteSignature]

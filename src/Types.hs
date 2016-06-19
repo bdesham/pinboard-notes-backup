@@ -5,7 +5,8 @@ module Types ( Note(..)
              , noteIdToText
              ) where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson
+import Data.Aeson.Types
 import Data.Coerce (coerce)
 import Data.Text (Text)
 import qualified Data.Text as T (unpack)
@@ -34,6 +35,16 @@ data Note = Note { note_id :: NoteId
 instance ToRow Note where
     toRow (Note n_id n_title n_text n_hash n_created n_updated) =
         toRow (n_id, n_title, n_text, n_hash, n_created, n_updated)
+
+instance FromJSON Note where
+    parseJSON (Object o) = Note <$>
+                           o .: "id" <*>
+                           o .: "title" <*>
+                           o .: "text" <*>
+                           o .: "hash" <*>
+                           o .: "created_at" <*>
+                           o .: "updated_at"
+    parseJSON other = typeMismatch "Note" other
 
 data NoteSignature = NoteSignature { ns_id :: NoteId
                                    , ns_updated :: UTCTime
