@@ -2,9 +2,9 @@ module Main where
 
 import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (for_)
-import Data.List (foldl', intercalate)
+import Data.List (foldl')
 import qualified Data.Set as Set
-import qualified Data.Text as T
+import Data.Text (Text, intercalate, pack)
 import Data.Time.Clock (UTCTime)
 import Data.Traversable (for)
 import Data.Version (showVersion)
@@ -42,9 +42,9 @@ data NoteStatus = New | Updated | UpToDate
 -- date, respectively.
 data ApplicationResult = ApplicationResult Int Int Int Int
 
-pluralize :: String -> String -> Int -> String
+pluralize :: Text -> Text -> Int -> Text
 pluralize singular _ 1 = "1 " <> singular
-pluralize _ plural n = show n <> " " <> plural
+pluralize _ plural n = (pack . show) n <> " " <> plural
 
 displayResult :: ApplicationResult -> IO ()
 displayResult (ApplicationResult upToDate updated new deleted) = do
@@ -108,7 +108,7 @@ main' (ProgramOptions apiToken verbosity databasePath) = do
 
     result <- runPinboard apiToken $ backUpNotes conn
     case result of
-      Left err -> logError (T.unpack err) >> exitFailure
+      Left err -> logError err >> exitFailure
       Right result' -> displayResult result'
 
 backUpNotes :: Connection -> PinboardM ApplicationResult
@@ -132,7 +132,7 @@ backUpNotes conn = do
 
 deleteNote :: Connection -> NoteId -> IO ()
 deleteNote conn noteId = do
-    logDebug $ "Deleting note " ++ (noteIdToString noteId)
+    logDebug $ "Deleting note " <> (noteIdToText noteId)
     execute conn "DELETE FROM notes WHERE id=?" (Only noteId)
 
 handleNote :: Connection -> NoteSignature -> PinboardM NoteStatus
@@ -146,7 +146,7 @@ handleNote conn (NoteSignature noteId lastUpdated) = do
 
 updateNoteFromServer :: Connection -> NoteId -> PinboardM ()
 updateNoteFromServer conn noteId = do
-    liftIO $ logDebug $ "Downloading note " ++ (noteIdToString noteId)
+    liftIO $ logDebug $ "Downloading note " <> (noteIdToText noteId)
     note <- getNote noteId
     liftIO $ execute conn insertQuery note
 

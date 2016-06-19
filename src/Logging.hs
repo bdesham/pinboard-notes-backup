@@ -1,5 +1,7 @@
 module Logging where
 
+import Data.Text (Text)
+import Data.Text (unpack)
 import System.Log.Logger
 
 
@@ -20,11 +22,11 @@ setApplicationVerbosity :: Verbosity -> IO ()
 setApplicationVerbosity Verbose = updateGlobalLogger loggerName $ setLevel DEBUG
 setApplicationVerbosity Standard = updateGlobalLogger loggerName $ setLevel INFO
 
-logError :: String -> IO ()
-logError = errorM loggerName
+logError :: Text -> IO ()
+logError = errorM loggerName . unpack
 
-logInfo :: String -> IO ()
-logInfo = infoM loggerName
+logInfo :: Text -> IO ()
+logInfo = infoM loggerName . unpack
 
-logDebug :: String -> IO ()
-logDebug = debugM loggerName
+logDebug :: Text -> IO ()
+logDebug = debugM loggerName . unpack
