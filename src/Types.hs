@@ -11,6 +11,7 @@ import Data.Coerce (coerce)
 import Data.Text (Text)
 import qualified Data.Text as T (unpack)
 import Data.Time.Clock (UTCTime)
+import Data.Time.Format
 import Database.SQLite.Simple
 import Database.SQLite.Simple.FromField
 import Database.SQLite.Simple.ToField
@@ -58,3 +59,10 @@ instance FromJSON Note where
 data NoteSignature = NoteSignature { ns_id :: NoteId
                                    , ns_updated :: UTCTime
                                    }
+
+instance FromJSON NoteSignature where
+    parseJSON (Object o) = NoteSignature <$>
+                           o .: "id" <*>
+                           (o .: "updated_at" >>= timeFromString)
+        where timeFromString = parseTimeM False defaultTimeLocale "%Y-%m-%d %H:%M:%S"
+    parseJSON other = typeMismatch "NoteSignature" other

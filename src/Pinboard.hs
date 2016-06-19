@@ -10,13 +10,11 @@ import Data.Aeson
 import Data.Aeson.Types
 import Data.ByteString.Char8 as B (pack)
 import Data.ByteString.Lazy (ByteString)
-import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Time.Clock (NominalDiffTime, UTCTime, diffUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
-import Data.Time.Format
 import Data.Version (showVersion)
 import Network.Wreq hiding (get, put)
 import Network.Wreq.Session (Session)
@@ -95,14 +93,6 @@ performRequest url = do
                   Just b -> return b
        else throwError "Error communicating with the Pinboard API"
 
-noteSummaryToTuple :: Object -> Maybe NoteSignature
-noteSummaryToTuple val = do
-    flip parseMaybe val $ \obj -> do
-        noteId <- obj .: "id"
-        lastUpdated <- obj .: "updated_at"
-        lastUpdatedTime <- parseTimeM False defaultTimeLocale "%Y-%m-%d %H:%M:%S" lastUpdated
-        return $ NoteSignature noteId lastUpdatedTime
-
 getNote :: NoteId -> PinboardM Note
 getNote noteId = do
     body <- performRequest $ noteUrl noteId
@@ -111,9 +101,9 @@ getNote noteId = do
 
 getNotesList :: PinboardM [NoteSignature]
 getNotesList = do
-    bodyString <- performRequest allNotesUrl
-    let maybeTuples = do     -- This "do" block is within the Maybe monad
-            bodyObject <- decode bodyString :: Maybe Object
-            notes <- parseMaybe (\obj -> obj .: "notes") bodyObject
-            return $ catMaybes $ map noteSummaryToTuple notes
-    returnOrThrow maybeTuples "Error getting the list of notes from the server"
+    body <- performRequest allNotesUrl
+    let noteSignatures = do     -- This "do" block is within the Maybe monad
+            bodyObject <- decode body :: Maybe Object
+            notes <- (parseMaybe (\obj -> obj .: "notes") bodyObject) :: Maybe [NoteSignature]
+            return notes
+    returnOrThrow noteSignatures "Error getting the list of notes from the server"
