@@ -15,6 +15,7 @@ import Paths_pinboard_notes_backup (version)
 import Pinboard
 import Prelude hiding (id)
 import System.Exit (exitFailure)
+import Text.PrettyPrint.ANSI.Leijen (Doc, vsep)
 import Types
 
 
@@ -88,11 +89,20 @@ optionsParser = ProgramOptions
 addVersionOption :: Options.Applicative.Parser (a -> a)
 addVersionOption = infoOption ("pnbackup " <> showVersion version) (long "version")
 
+copyrightInfo :: Doc
+copyrightInfo = vsep [ "Copyright © 2016 Benjamin D. Esham"
+                     , ""
+                     , "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>."
+                     , "This is free software: you are free to change and redistribute it."
+                     , "There is NO WARRANTY, to the extent permitted by law."
+                     ]
+
+
 commandLineOptions :: ParserInfo ProgramOptions
-commandLineOptions = info (addVersionOption <*> (helper <*> optionsParser)) parserInfo
+commandLineOptions = info (addVersionOption <*> helper <*> optionsParser) parserInfo
     where parserInfo = fullDesc
                        <> header "pnbackup - Back up the notes you’ve saved to Pinboard"
-                       <> footer "Copyright © 2016 Benjamin D. Esham"
+                       <> footerDoc (Just copyrightInfo)
 
 main :: IO ()
 main = execParser commandLineOptions >>= main'
