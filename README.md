@@ -26,10 +26,33 @@ replacing the example API token with your own. This will put all of your notes i
 
 Each time you run the program, it will fetch the list of your notes from the Pinboard server. It will then download any notes that are new or that have been updated on the server, and it will delete any notes that have been deleted from the server. The program does one-way synchronization only: it will update your local database to match what’s on the server but it will never make any changes on the server.
 
-The [Pinboard API][API] requires a three-second wait time between each request, and the text of each note must be downloaded in a separate request, so the initial download of your notes may take a while. Subsequent syncs should be much shorter, though. If you want to see exactly what `pnbackup` is doing as it works, pass it the `-v` or `--verbose` flags.
+The [Pinboard API] requires a three-second wait time between each request, and the text of each note must be downloaded in a separate request, so the initial download of your notes may take a while. Subsequent syncs should be much shorter, though. If you want to see exactly what `pnbackup` is doing as it works, pass it the `-v` or `--verbose` flags.
 
 [password settings]: https://pinboard.in/settings/password
-[API]: https://pinboard.in/api/
+[Pinboard API]: https://pinboard.in/api/
+
+## Data format
+
+Your notes are stored in a table called “notes” with the following schema:
+
+```
+CREATE TABLE notes (
+    id TEXT NOT NULL UNIQUE,
+    title TEXT NOT NULL,
+    text TEXT NOT NULL,
+    hash TEXT NOT NULL,
+    created DATETIME NOT NULL,
+    updated DATETIME NOT NULL
+);
+```
+
+These columns correspond exactly to the fields listed on the [Pinboard API] page.
+
+Why SQLite and not some plain-text format? In [the words of Paul Ford][Ford],
+
+> SQLite is incredibly well-documented. It’s also instantly usable as a database from the command line with no pre-processing at all, even for very large files, and there are immediately usable SQLite APIs for every programming language. Plus it’s incredibly easy to turn SQLite data into plain text, it has freely available extensions for geo, full-text, and hierarchical data, and it’s tiny and public-domain.
+
+[Ford]: https://trackchanges.postlight.com/usable-data-5d626d8a6b57
 
 ## Author
 
