@@ -62,7 +62,7 @@ This project is [hosted on GitHub](https://github.com/bdesham/pinboard-notes-bac
 
 ## Version history
 
-* 1.0.0 (2016-06-17): Initial release.
+* 1.0.0 (2016-06-28): Initial release.
 
 ## License
 
