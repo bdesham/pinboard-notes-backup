@@ -12,6 +12,10 @@ category:            Web
 build-type:          Simple
 cabal-version:       >= 1.10
 
+source-repository head
+  type:     git
+  location: git://github.com/bdesham/pinboard-notes-backup.git
+
 executable pnbackup
   hs-source-dirs:      src
   main-is:             Main.hs
@@ -33,4 +37,4 @@ executable pnbackup
                        , transformers >= 0.4 && < 0.6
                        , wreq == 0.4.*
   default-extensions:  OverloadedStrings GeneralizedNewtypeDeriving DeriveFunctor
-  ghc-options:         -Wall -Werror -fno-warn-unused-do-bind -O
+  ghc-options:         -Wall -fno-warn-unused-do-bind
