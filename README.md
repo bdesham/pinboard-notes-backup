@@ -8,9 +8,13 @@ Efficiently back up the notes you’ve saved to [Pinboard].
 
 This is a Haskell program that you can build using [Stack]. With Stack installed, just type
 
+    stack setup
+
+to download and install GHC (the Haskell compiler) and then
+
     stack install
 
-to build the `pnbackup` binary and install it. (The default installation directory is `~/.local/bin`; you may want to copy the executable from there into some directory that is listed in your `PATH`.)
+to build the `pnbackup` binary and install it. (The default installation directory is `~/.local/bin`; you probably want to copy the executable from there into some directory that is listed in your `PATH`.)
 
 [Stack]: http://docs.haskellstack.org/en/stable/README/
 
