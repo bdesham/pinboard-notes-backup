@@ -165,5 +165,5 @@ updateNoteFromServer conn noteId = do
 -- * Utility functions
 
 -- | Counts the number of occurrences of the given value within the given list.
-count :: Eq a => a -> [a] -> Int
+count :: (Eq a, Foldable t) => a -> t a -> Int
 count needle = foldl' (\accum item -> if item == needle then succ accum else accum) 0
