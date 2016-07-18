@@ -133,7 +133,7 @@ backUpNotes conn = do
         remoteNoteIds = (Set.fromList . map ns_id) notesList
         notesToDelete = localNoteIds `Set.difference` remoteNoteIds
         numberToDelete = length notesToDelete
-    liftIO $ for_ notesToDelete $ deleteNote conn
+    for_ notesToDelete $ deleteNote conn
     statuses <- for notesList $ handleNote conn
 
     return $ ApplicationResult (count UpToDate statuses)
@@ -141,8 +141,8 @@ backUpNotes conn = do
                                (count New statuses)
                                numberToDelete
 
-deleteNote :: Connection -> NoteId -> IO ()
-deleteNote conn noteId = do
+deleteNote :: Connection -> NoteId -> PinboardM ()
+deleteNote conn noteId = liftIO $ do
     logDebug $ "Deleting note " <> (noteIdToText noteId)
     execute conn "DELETE FROM notes WHERE id=?" (Only noteId)
 
