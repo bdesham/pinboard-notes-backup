@@ -63,20 +63,20 @@ displayResult (ApplicationResult upToDate updated new deleted) = do
 
 -- * Command line parsing
 
-data ProgramOptions = ProgramOptions { o_apiToken :: String
-                                     , o_verbosity :: Verbosity
+data ProgramOptions = ProgramOptions { o_verbosity :: Verbosity
+                                     , o_apiToken :: String
                                      , o_databasePath :: String
                                      }
 
 optionsParser :: Options.Applicative.Parser ProgramOptions
 optionsParser = ProgramOptions
-    <$> strOption (short 't'
+    <$> flag Standard Verbose (short 'v'
+                               <> long "verbose"
+                               <> help verboseHelp)
+    <*> strOption (short 't'
                    <> long "token"
                    <> metavar "TOKEN"
                    <> help tokenHelp)
-    <*> flag Standard Verbose (short 'v'
-                               <> long "verbose"
-                               <> help verboseHelp)
     <*> argument str (metavar "FILE"
                       <> help pathHelp)
     where tokenHelp = "Your API token (e.g. maciej:abc123456). "
@@ -87,7 +87,10 @@ optionsParser = ProgramOptions
                      <> "Notes are always stored in a table called “notes”."
 
 addVersionOption :: Options.Applicative.Parser (a -> a)
-addVersionOption = infoOption ("pnbackup " <> showVersion version) (long "version")
+addVersionOption = infoOption ("pnbackup " <> showVersion version)
+                              (long "version"
+                               <> help "Show the version number"
+                               <> hidden)
 
 copyrightInfo :: Doc
 copyrightInfo = vsep [ "Copyright © 2016 Benjamin D. Esham"
@@ -101,7 +104,9 @@ copyrightInfo = vsep [ "Copyright © 2016 Benjamin D. Esham"
 commandLineOptions :: ParserInfo ProgramOptions
 commandLineOptions = info (addVersionOption <*> helper <*> optionsParser) parserInfo
     where parserInfo = fullDesc
-                       <> header "pnbackup - Back up the notes you’ve saved to Pinboard"
+                       <> header ("pnbackup - Back up the notes you’ve saved to Pinboard"
+                                  <> "\n"
+                                  <> "<https://github.com/bdesham/pinboard-notes-backup>")
                        <> footerDoc (Just copyrightInfo)
 
 main :: IO ()
@@ -111,7 +116,7 @@ main = execParser commandLineOptions >>= main'
 -- * The business logic
 
 main' :: ProgramOptions -> IO ()
-main' (ProgramOptions apiToken verbosity databasePath) = do
+main' (ProgramOptions verbosity apiToken databasePath) = do
     setApplicationVerbosity verbosity
 
     conn <- open databasePath
