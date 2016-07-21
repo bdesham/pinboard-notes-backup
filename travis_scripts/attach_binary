@@ -2,6 +2,9 @@
 
 set -o errexit -o verbose
 
+PROJECT_NAME=pinboard-notes-backup
+BINARY_NAME=pnbackup
+
 if [[ -z "$TRAVIS_TAG" ]]; then
 	echo "This is not a release build."
 elif [[ -z "$GITHUB_TOKEN" ]]; then
@@ -9,14 +12,20 @@ elif [[ -z "$GITHUB_TOKEN" ]]; then
 	exit 1
 else
 	echo "Attaching binary for $TRAVIS_OS_NAME to $TRAVIS_TAG..."
-	BIN="$(stack path --local-install-root)/bin/pnbackup"
-	chmod +x "$BIN"
-	gzip --best --to-stdout "$BIN" > pnbackup.gz
+
+	BINARY_FILE="$(stack path --local-install-root)/bin/$BINARY_NAME"
+	chmod +x "$BINARY_FILE"
+
+	LABEL=$PROJECT_NAME-$TRAVIS_TAG-$TRAVIS_OS_NAME
+	mkdir "$LABEL"
+	cp README.md LICENSE.txt "$BINARY_FILE" "$LABEL"
+	tar -czvf "$LABEL.tar.gz" "$LABEL"
+
 	github-release upload \
 		--token "$GITHUB_TOKEN" \
 		--owner bdesham \
-		--repo pinboard-notes-backup \
+		--repo "$PROJECT_NAME" \
 		--tag "$TRAVIS_TAG" \
-		--file pnbackup.gz \
-		--name "pnbackup-$TRAVIS_TAG-$TRAVIS_OS_NAME.gz"
+		--file "$LABEL.tar.gz" \
+		--name "$LABEL.tar.gz"
 fi
