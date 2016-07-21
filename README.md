@@ -6,7 +6,7 @@ Efficiently back up the notes you’ve saved to [Pinboard].
 
 ## Installation
 
-Prebuilt binaries are available for OS X and Linux. Find them on [the page for the most recent release][release].
+Prebuilt binaries are available for OS X and Linux—find them on [the page for the most recent release][release]. Download the archive for your OS, unpack it, and copy the `pnbackup` binary to some directory in your `PATH`, like `/usr/local/bin`.
 
 [release]: https://github.com/bdesham/pinboard-notes-backup/releases/latest
 
