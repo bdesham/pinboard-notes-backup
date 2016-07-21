@@ -4,19 +4,19 @@ set -o errexit -o verbose
 
 if [[ -z "$TRAVIS_TAG" ]]; then
 	echo "This is not a release build."
-elif [[ -z "${GITHUB_TOKEN}" ]]; then
+elif [[ -z "$GITHUB_TOKEN" ]]; then
 	echo "The GITHUB_TOKEN environment variable is not set!"
 	exit 1
 else
 	echo "Attaching binary for $TRAVIS_OS_NAME to $TRAVIS_TAG..."
-	BIN="$(stack path --local-install-root)/bin/octane"
+	BIN="$(stack path --local-install-root)/bin/pnbackup"
 	chmod +x "$BIN"
-	gzip --best --to-stdout "$BIN" > octane.gz
+	gzip --best --to-stdout "$BIN" > pnbackup.gz
 	github-release upload \
 		--token "$GITHUB_TOKEN" \
-		--owner tfausak \
-		--repo octane \
+		--owner bdesham \
+		--repo pinboard-notes-backup \
 		--tag "$TRAVIS_TAG" \
-		--file octane.gz \
-		--name "octane-$TRAVIS_TAG-$TRAVIS_OS_NAME.gz"
+		--file pnbackup.gz \
+		--name "pnbackup-$TRAVIS_TAG-$TRAVIS_OS_NAME.gz"
 fi
