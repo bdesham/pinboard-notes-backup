@@ -66,9 +66,17 @@ This project is [hosted on GitHub](https://github.com/bdesham/pinboard-notes-bac
 
 ## Version history
 
+* 1.0.1 (2016-07-20): Tweaked the help text and made some under-the-hood changes.
 * 1.0.0 (2016-06-28): Initial release.
 
 ## License
+
+The scripts in the “travis_scripts” folder were adapted from scripts written by Taylor Fausak for the [Octane] project. They are released under [the license of that project][Octane license].
+
+[Octane]: https://github.com/tfausak/octane
+[Octane license]: https://github.com/tfausak/octane/blob/04ea434f476d30c3c8327d8ed9afdc6ae246f2ae/LICENSE.markdown
+
+The rest of the code in this repository is released under the following terms:
 
 Copyright © 2016 Benjamin D. Esham.
 
