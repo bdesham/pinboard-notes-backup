@@ -6,6 +6,12 @@ Efficiently back up the notes you’ve saved to [Pinboard].
 
 ## Installation
 
+Prebuilt binaries are available for OS X and Linux. Find them on [the page for the most recent release][release].
+
+[release]: https://github.com/bdesham/pinboard-notes-backup/releases/latest
+
+### Building from source
+
 This is a Haskell program that you can build using [Stack]. With Stack installed, just type
 
     stack setup
