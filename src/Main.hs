@@ -34,6 +34,9 @@ createTableQuery = mconcat [ "CREATE TABLE IF NOT EXISTS notes "
 insertQuery :: Query
 insertQuery = "INSERT INTO notes (id, title, text, hash, created, updated) VALUES(?, ?, ?, ?, ?, ?)"
 
+deleteQuery :: Query
+deleteQuery = "DELETE FROM notes WHERE id=?"
+
 
 -- * Reporting
 
@@ -164,6 +167,7 @@ updateNoteFromServer :: Connection -> NoteId -> PinboardM ()
 updateNoteFromServer conn noteId = do
     liftIO $ logDebug $ "Downloading note " <> (noteIdToText noteId)
     note <- getNote noteId
+    liftIO $ execute conn deleteQuery (Only noteId)
     liftIO $ execute conn insertQuery note
 
 
