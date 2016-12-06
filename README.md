@@ -72,6 +72,7 @@ This project is [hosted on GitHub](https://github.com/bdesham/pinboard-notes-bac
 
 ## Version history
 
+* 1.0.2 (2016-12-05): If any notes had been changed on the server then the application would error out instead of updating the local copy.
 * 1.0.1 (2016-07-20): Tweaked the help text and made some under-the-hood changes.
 * 1.0.0 (2016-06-28): Initial release.
 
