@@ -72,9 +72,12 @@ This project is [hosted on GitHub](https://github.com/bdesham/pinboard-notes-bac
 
 ## Version history
 
+* 1.0.3 (2017-11-05): The program now builds against a wider set of dependencies. This will allow it to be installed using [Homebrew]. (There were no changes in functionality.)
 * 1.0.2 (2016-12-05): If any notes had been changed on the server then the application would error out instead of updating the local copy.
 * 1.0.1 (2016-07-20): Tweaked the help text and made some under-the-hood changes.
 * 1.0.0 (2016-06-28): Initial release.
+
+[Homebrew]: https://brew.sh
 
 ## License
 
@@ -85,7 +88,7 @@ The scripts in the “travis_scripts” folder were adapted from scripts written
 
 The rest of the code in this repository is released under the following terms:
 
-Copyright © 2016 Benjamin D. Esham.
+Copyright © 2016–2017 Benjamin D. Esham.
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
