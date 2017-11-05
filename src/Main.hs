@@ -3,6 +3,7 @@ module Main where
 import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (for_)
 import Data.List (foldl')
+import Data.Monoid ((<>))
 import qualified Data.Set as Set
 import Data.Text (Text, intercalate, pack)
 import Data.Time.Clock (UTCTime)
