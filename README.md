@@ -6,8 +6,13 @@ Efficiently back up the notes you’ve saved to [Pinboard].
 
 ## Installation
 
+If you’re using [Homebrew], you can just run
+
+    brew install pinboard-notes-backup
+
 Prebuilt binaries are available for OS X and Linux—find them on [the page for the most recent release][release]. Download the archive for your OS, unpack it, and copy the `pnbackup` binary to some directory in your `PATH`, like `/usr/local/bin`.
 
+[Homebrew]: https://brew.sh
 [release]: https://github.com/bdesham/pinboard-notes-backup/releases/latest
 
 ### Building from source
@@ -76,8 +81,6 @@ This project is [hosted on GitHub](https://github.com/bdesham/pinboard-notes-bac
 * 1.0.2 (2016-12-05): If any notes had been changed on the server then the application would error out instead of updating the local copy.
 * 1.0.1 (2016-07-20): Tweaked the help text and made some under-the-hood changes.
 * 1.0.0 (2016-06-28): Initial release.
-
-[Homebrew]: https://brew.sh
 
 ## License
 
