@@ -1,7 +1,6 @@
 module Pinboard (PinboardM, runPinboard, getNote, getNotesList) where
 
 import Control.Concurrent (threadDelay)
-import Control.Lens ((^.), (^?), (&), (.~))
 import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.State.Class
@@ -10,15 +9,14 @@ import Data.Aeson
 import Data.Aeson.Types
 import Data.ByteString.Char8 as B (pack)
 import Data.ByteString.Lazy (ByteString)
+import Data.Default.Class
 import Data.Monoid ((<>))
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Time.Clock (NominalDiffTime, UTCTime, diffUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Version (showVersion)
-import Network.Wreq hiding (get, put)
-import Network.Wreq.Session (Session)
-import qualified Network.Wreq.Session as S (getWith, withAPISession)
+import Network.HTTP.Req
 import Paths_pinboard_notes_backup (version)
 import Types
 
@@ -29,11 +27,11 @@ nominalDiffTimeToMicroseconds = floor . ((1000000 :: Double) *) . realToFrac
 delayTime :: NominalDiffTime
 delayTime = 3
 
-allNotesUrl :: String
-allNotesUrl = "https://api.pinboard.in/v1/notes/list"
+allNotesUrl :: Url 'Https
+allNotesUrl = https "api.pinboard.in" /: "v1" /: "notes" /: "list"
 
-noteUrl :: NoteId -> String
-noteUrl noteId = "https://api.pinboard.in/v1/notes/" <> noteIdString
+noteUrl :: NoteId -> Url 'Https
+noteUrl noteId = https "api.pinboard.in" /: "v1" /: "notes" /: (T.pack noteIdString)
     where noteIdString = noteIdToString noteId
 
 returnOrThrow :: Maybe a -> Text -> PinboardM a
@@ -41,7 +39,6 @@ returnOrThrow Nothing err = throwError err
 returnOrThrow (Just value) _ = return value
 
 data PinboardConfig = PinboardConfig { c_token :: String
-                                     , c_session :: Session
                                      }
 
 data PinboardState = PinboardState { s_lastSuccess :: UTCTime
@@ -53,24 +50,24 @@ newtype PinboardM a = Thing {
             MonadState PinboardState, MonadError Text)
 
 runPinboard :: String -> PinboardM a -> IO (Either Text a)
-runPinboard token k = S.withAPISession $ \sess -> do
-    let config = PinboardConfig token sess
+runPinboard token k =
+    let config = PinboardConfig token
         initialState = PinboardState (posixSecondsToUTCTime 0)
-    runExceptT (evalStateT (runReaderT (runPinboardM k) config) initialState)
+     in runExceptT (evalStateT (runReaderT (runPinboardM k) config) initialState)
 
-wreqOptions :: PinboardM Network.Wreq.Options
-wreqOptions = do
+reqOptions :: PinboardM (Option scheme)
+reqOptions = do
     token <- c_token <$> ask
-    return $ defaults & header "User-Agent" .~ [B.pack userAgent]
-                      & param "format" .~ ["json"]
-                      & param "auth_token" .~ [T.pack token]
+    return $ mconcat [ header "User-Agent" $ B.pack userAgent
+                     , "format" =: ("json" :: Text)
+                     , "auth_token" =: token
+                     ]
     where userAgent = "pnbackup/" <> showVersion version <> " (+" <> url <> ")"
           url = "https://github.com/bdesham/pinboard-notes-backup"
 
--- | Takes a URL, appends the API token, makes a GET request, and returns the
--- body of the response (if the status code was 2xx and Wreq gives us a
--- response body) or else Nothing.
-performRequest :: String -> PinboardM ByteString
+-- | Takes a URL, appends the API token, makes a GET request, and returns the body of the response
+-- (if the status code was 2xx) or else Nothing.
+performRequest :: Url 'Https -> PinboardM ByteString
 performRequest url = do
     previousTime <- s_lastSuccess <$> get
     currentTime <- liftIO $ getCurrentTime
@@ -78,19 +75,15 @@ performRequest url = do
     liftIO $ when (timeToWait > 0) $
         threadDelay (nominalDiffTimeToMicroseconds timeToWait)
 
-    opts <- wreqOptions
-    session <- c_session <$> ask
-    response <- liftIO $ S.getWith opts session url
+    opts <- reqOptions
+    response <- liftIO $ runReq def $ req GET url NoReqBody lbsResponse opts
 
     newCurrentTime <- liftIO $ getCurrentTime
     put $ PinboardState newCurrentTime
 
-    let status = response ^. responseStatus ^. statusCode
+    let status = responseStatusCode response
     if status >= 200 && status < 300
-       then let body = response ^? responseBody
-             in case body of
-                  Nothing -> throwError "The response from the Pinboard API is missing a body"
-                  Just b -> return b
+       then return $ responseBody response
        else throwError "Error communicating with the Pinboard API"
 
 getNote :: NoteId -> PinboardM Note
