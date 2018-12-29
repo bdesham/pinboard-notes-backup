@@ -12,7 +12,6 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Default.Class
 import Data.Monoid ((<>))
 import Data.Text (Text)
-import qualified Data.Text as T
 import Data.Time.Clock (NominalDiffTime, UTCTime, diffUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Version (showVersion)
@@ -31,8 +30,7 @@ allNotesUrl :: Url 'Https
 allNotesUrl = https "api.pinboard.in" /: "v1" /: "notes" /: "list"
 
 noteUrl :: NoteId -> Url 'Https
-noteUrl noteId = https "api.pinboard.in" /: "v1" /: "notes" /: (T.pack noteIdString)
-    where noteIdString = noteIdToString noteId
+noteUrl noteId = https "api.pinboard.in" /: "v1" /: "notes" /: (noteIdToText noteId)
 
 returnOrThrow :: Maybe a -> Text -> PinboardM a
 returnOrThrow Nothing err = throwError err

@@ -1,15 +1,12 @@
 module Types ( Note(..)
              , NoteId
              , NoteSignature(..)
-             , noteIdToString
              , noteIdToText
              ) where
 
 import Data.Aeson
 import Data.Aeson.Types
-import Data.Coerce (coerce)
 import Data.Text (Text)
-import qualified Data.Text as T (unpack)
 import Data.Time.Clock (UTCTime)
 import Data.Time.Format
 import Database.SQLite.Simple
@@ -23,10 +20,7 @@ newtype NoteId = NoteId Text
     deriving (Eq, Ord, FromField, FromJSON, ToField)
 
 noteIdToText :: NoteId -> Text
-noteIdToText = coerce
-
-noteIdToString :: NoteId -> String
-noteIdToString = T.unpack . noteIdToText
+noteIdToText (NoteId t) = t
 
 
 -- * Note
