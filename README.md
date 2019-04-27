@@ -91,7 +91,7 @@ The scripts in the “travis_scripts” folder were adapted from scripts written
 
 The rest of the code in this repository is released under the following terms:
 
-Copyright © 2016–2017 Benjamin D. Esham.
+Copyright © 2016–2017, 2019 Benjamin D. Esham.
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
