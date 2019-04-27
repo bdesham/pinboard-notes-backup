@@ -4,6 +4,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (for_)
 import Data.List (foldl')
 import Data.Monoid ((<>))
+import Data.Set ((\\))
 import qualified Data.Set as Set
 import Data.Text (Text, intercalate, pack)
 import Data.Time.Clock (UTCTime)
@@ -139,7 +140,7 @@ backUpNotes conn = do
     localNoteOnlyIds <- liftIO $ query_ conn "SELECT id FROM notes"
     let localNoteIds = (Set.fromList . map fromOnly) localNoteOnlyIds
         remoteNoteIds = (Set.fromList . map ns_id) notesList
-        notesToDelete = localNoteIds `Set.difference` remoteNoteIds
+        notesToDelete = localNoteIds \\ remoteNoteIds
         numberToDelete = length notesToDelete
     for_ notesToDelete $ deleteNote conn
     statuses <- for notesList $ handleNote conn
