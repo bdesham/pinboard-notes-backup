@@ -1,4 +1,9 @@
-module Pinboard (Verbosity(..), PinboardM, runPinboard, getNote, getNotesList, log, logVerbose) where
+module Pinboard ( ApplicationResult(..)
+                , Verbosity(..)
+                , PinboardM
+                , runPinboard
+                , backUpNotes
+                ) where
 
 import Prelude hiding (log, putStrLn)
 import Control.Concurrent (threadDelay)
@@ -11,15 +16,24 @@ import Data.Aeson.Types
 import Data.ByteString.Char8 as B (pack)
 import Data.ByteString.Lazy (ByteString)
 import Data.Default.Class
+import Data.Foldable (for_)
+import Data.List (foldl')
 import Data.Monoid ((<>))
+import Data.Set ((\\))
+import qualified Data.Set as Set
 import Data.Text (Text)
 import Data.Text.IO (putStrLn)
 import Data.Time.Clock (NominalDiffTime, UTCTime, diffUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
+import Data.Traversable (for)
 import Data.Version (showVersion)
+import Database.SQLite.Simple
 import Network.HTTP.Req
 import Paths_pinboard_notes_backup (version)
 import Types
+
+
+-- * Constants
 
 nominalDiffTimeToMicroseconds :: NominalDiffTime -> Int
 nominalDiffTimeToMicroseconds = floor . ((1000000 :: Double) *) . realToFrac
@@ -34,9 +48,38 @@ allNotesUrl = https "api.pinboard.in" /: "v1" /: "notes" /: "list"
 noteUrl :: NoteId -> Url 'Https
 noteUrl noteId = https "api.pinboard.in" /: "v1" /: "notes" /: (noteIdToText noteId)
 
+
+-- * SQLite queries
+
+selectUpdatedQuery :: Query
+selectUpdatedQuery = "SELECT updated FROM notes WHERE id=?"
+
+deleteQuery :: Query
+deleteQuery = "DELETE FROM notes WHERE id=?"
+
+insertQuery :: Query
+insertQuery = "INSERT INTO notes (id, title, text, hash, created, updated) VALUES(?, ?, ?, ?, ?, ?)"
+
+
+-- * Utility functions
+
 returnOrThrow :: Maybe a -> Text -> PinboardM a
 returnOrThrow Nothing err = throwError err
 returnOrThrow (Just value) _ = return value
+
+-- | Counts the number of occurrences of the given value within the given list.
+count :: (Eq a, Foldable t) => a -> t a -> Int
+count needle = foldl' (\accum item -> if item == needle then succ accum else accum) 0
+
+
+-- * Types
+
+data NoteStatus = New | Updated | UpToDate
+    deriving (Eq)
+
+-- | Structure describing how many notes were updated, newly added, deleted, and already up to date,
+-- respectively.
+data ApplicationResult = ApplicationResult Int Int Int Int
 
 data Verbosity = Verbose | Standard
     deriving (Eq)
@@ -59,15 +102,8 @@ runPinboard token verbosity k =
         initialState = PinboardState (posixSecondsToUTCTime 0)
      in runExceptT (evalStateT (runReaderT (runPinboardM k) config) initialState)
 
-reqOptions :: PinboardM (Option scheme)
-reqOptions = do
-    token <- c_token <$> ask
-    return $ mconcat [ header "User-Agent" $ B.pack userAgent
-                     , "format" =: ("json" :: Text)
-                     , "auth_token" =: token
-                     ]
-    where userAgent = "pnbackup/" <> showVersion version <> " (+" <> url <> ")"
-          url = "https://github.com/bdesham/pinboard-notes-backup"
+
+-- * Helper functions
 
 -- | Takes a URL, appends the API token, makes a GET request, and returns the body of the response
 -- (if the status code was 2xx) or else Nothing.
@@ -90,8 +126,50 @@ performRequest url = do
        then return $ responseBody response
        else throwError "Error communicating with the Pinboard API"
 
+reqOptions :: PinboardM (Option scheme)
+reqOptions = do
+    token <- c_token <$> ask
+    return $ mconcat [ header "User-Agent" $ B.pack userAgent
+                     , "format" =: ("json" :: Text)
+                     , "auth_token" =: token
+                     ]
+    where userAgent = "pnbackup/" <> showVersion version <> " (+" <> url <> ")"
+          url = "https://github.com/bdesham/pinboard-notes-backup"
+
+
+-- * Business logic
+
+backUpNotes :: Connection -> PinboardM ApplicationResult
+backUpNotes conn = do
+    log "Downloading the list of notes..."
+    notesList <- getNotesList
+
+    log "Processing notes (this may take a while)..."
+    localNoteOnlyIds <- liftIO $ query_ conn "SELECT id FROM notes"
+    let localNoteIds = (Set.fromList . map fromOnly) localNoteOnlyIds
+        remoteNoteIds = (Set.fromList . map ns_id) notesList
+        notesToDelete = localNoteIds \\ remoteNoteIds
+        numberToDelete = length notesToDelete
+    for_ notesToDelete $ deleteNote conn
+    statuses <- for notesList $ handleNote conn
+
+    return $ ApplicationResult (count UpToDate statuses)
+                               (count Updated statuses)
+                               (count New statuses)
+                               numberToDelete
+
+handleNote :: Connection -> NoteSignature -> PinboardM NoteStatus
+handleNote conn (NoteSignature noteId lastUpdated) = do
+    lastUpdatedLocally <- liftIO $ query conn selectUpdatedQuery (Only noteId)
+    if length (lastUpdatedLocally :: [Only UTCTime]) == 0
+       then updateNoteFromServer conn noteId >> return New
+       else if (fromOnly $ head lastUpdatedLocally) < lastUpdated
+               then updateNoteFromServer conn noteId >> return Updated
+               else return UpToDate
+
 getNote :: NoteId -> PinboardM Note
 getNote noteId = do
+    logVerbose $ "Downloading note " <> (noteIdToText noteId)
     body <- performRequest $ noteUrl noteId
     let noteObject = decode body :: Maybe Note
     returnOrThrow noteObject ("Couldn't retrieve note " <> noteIdToText noteId)
@@ -104,6 +182,17 @@ getNotesList = do
             notes <- (parseMaybe (\obj -> obj .: "notes") bodyObject) :: Maybe [NoteSignature]
             return notes
     returnOrThrow noteSignatures "Error getting the list of notes from the server"
+
+deleteNote :: Connection -> NoteId -> PinboardM ()
+deleteNote conn noteId = do
+    log $ "Deleting note " <> (noteIdToText noteId)
+    liftIO $ execute conn deleteQuery (Only noteId)
+
+updateNoteFromServer :: Connection -> NoteId -> PinboardM ()
+updateNoteFromServer conn noteId = do
+    note <- getNote noteId
+    liftIO $ execute conn deleteQuery (Only noteId)
+    liftIO $ execute conn insertQuery note
 
 
 -- * Logging

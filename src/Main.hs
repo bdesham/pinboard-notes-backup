@@ -1,16 +1,9 @@
 module Main where
 
-import Prelude hiding (id, log, putStrLn)
-import Control.Monad.IO.Class (liftIO)
-import Data.Foldable (for_)
-import Data.List (foldl')
+import Prelude hiding (id, putStrLn)
 import Data.Monoid ((<>))
-import Data.Set ((\\))
-import qualified Data.Set as Set
 import Data.Text (Text, intercalate, pack)
 import Data.Text.IO (putStrLn)
-import Data.Time.Clock (UTCTime)
-import Data.Traversable (for)
 import Data.Version (showVersion)
 import Database.SQLite.Simple
 import Options.Applicative
@@ -18,52 +11,6 @@ import Paths_pinboard_notes_backup (version)
 import Pinboard
 import System.Exit (exitFailure)
 import Text.PrettyPrint.ANSI.Leijen (Doc, vsep)
-import Types
-
-
--- * A couple of long SQLite queries
-
-createTableQuery :: Query
-createTableQuery = mconcat [ "CREATE TABLE IF NOT EXISTS notes "
-                           , "(id TEXT NOT NULL UNIQUE, "
-                           , "title TEXT NOT NULL, "
-                           , "text TEXT NOT NULL, "
-                           , "hash TEXT NOT NULL, "
-                           , "created DATETIME NOT NULL, "
-                           , "updated DATETIME NOT NULL)"
-                           ]
-
-insertQuery :: Query
-insertQuery = "INSERT INTO notes (id, title, text, hash, created, updated) VALUES(?, ?, ?, ?, ?, ?)"
-
-deleteQuery :: Query
-deleteQuery = "DELETE FROM notes WHERE id=?"
-
-
--- * Reporting
-
-data NoteStatus = New | Updated | UpToDate
-    deriving (Eq)
-
--- | Structure describing how many notes were updated, newly added, deleted, and already up to
--- date, respectively.
-data ApplicationResult = ApplicationResult Int Int Int Int
-
-pluralize :: Text -> Text -> Int -> Text
-pluralize singular _ 1 = "1 " <> singular
-pluralize _ plural n = (pack . show) n <> " " <> plural
-
-displayResult :: ApplicationResult -> IO ()
-displayResult (ApplicationResult upToDate updated new deleted) = do
-    putStrLn $ intercalate ", " [ updatedString
-                                , newString
-                                , deletedString
-                                , upToDateString
-                                ] <> "."
-    where upToDateString = pluralize "note already up-to-date" "notes already up-to-date" upToDate
-          updatedString = pluralize "note updated" "notes updated" updated
-          newString = pluralize "new note" "new notes" new
-          deletedString = pluralize "note deleted" "notes deleted" deleted
 
 
 -- * Command line parsing
@@ -113,11 +60,11 @@ commandLineOptions = info (addVersionOption <*> helper <*> optionsParser) parser
                                   <> "<https://github.com/bdesham/pinboard-notes-backup>")
                        <> footerDoc (Just copyrightInfo)
 
+
+-- * Main
+
 main :: IO ()
 main = execParser commandLineOptions >>= main'
-
-
--- * The business logic
 
 main' :: ProgramOptions -> IO ()
 main' (ProgramOptions apiToken verbosity databasePath) = do
@@ -129,49 +76,31 @@ main' (ProgramOptions apiToken verbosity databasePath) = do
       Left err -> putStrLn err >> exitFailure
       Right result' -> displayResult result'
 
-backUpNotes :: Connection -> PinboardM ApplicationResult
-backUpNotes conn = do
-    log "Downloading the list of notes..."
-    notesList <- getNotesList
+createTableQuery :: Query
+createTableQuery = mconcat [ "CREATE TABLE IF NOT EXISTS notes "
+                           , "(id TEXT NOT NULL UNIQUE, "
+                           , "title TEXT NOT NULL, "
+                           , "text TEXT NOT NULL, "
+                           , "hash TEXT NOT NULL, "
+                           , "created DATETIME NOT NULL, "
+                           , "updated DATETIME NOT NULL)"
+                           ]
 
-    log "Processing notes (this may take a while)..."
-    localNoteOnlyIds <- liftIO $ query_ conn "SELECT id FROM notes"
-    let localNoteIds = (Set.fromList . map fromOnly) localNoteOnlyIds
-        remoteNoteIds = (Set.fromList . map ns_id) notesList
-        notesToDelete = localNoteIds \\ remoteNoteIds
-        numberToDelete = length notesToDelete
-    for_ notesToDelete $ deleteNote conn
-    statuses <- for notesList $ handleNote conn
-
-    return $ ApplicationResult (count UpToDate statuses)
-                               (count Updated statuses)
-                               (count New statuses)
-                               numberToDelete
-
-deleteNote :: Connection -> NoteId -> PinboardM ()
-deleteNote conn noteId = do
-    log $ "Deleting note " <> (noteIdToText noteId)
-    liftIO $ execute conn "DELETE FROM notes WHERE id=?" (Only noteId)
-
-handleNote :: Connection -> NoteSignature -> PinboardM NoteStatus
-handleNote conn (NoteSignature noteId lastUpdated) = do
-    lastUpdatedLocally <- liftIO $ query conn "SELECT updated FROM notes WHERE id=?" (Only noteId)
-    if length (lastUpdatedLocally :: [Only UTCTime]) == 0
-       then updateNoteFromServer conn noteId >> return New
-       else if (fromOnly $ head lastUpdatedLocally) < lastUpdated
-               then updateNoteFromServer conn noteId >> return Updated
-               else return UpToDate
-
-updateNoteFromServer :: Connection -> NoteId -> PinboardM ()
-updateNoteFromServer conn noteId = do
-    logVerbose $ "Downloading note " <> (noteIdToText noteId)
-    note <- getNote noteId
-    liftIO $ execute conn deleteQuery (Only noteId)
-    liftIO $ execute conn insertQuery note
+displayResult :: ApplicationResult -> IO ()
+displayResult (ApplicationResult upToDate updated new deleted) = do
+    putStrLn $ intercalate ", " [ updatedString
+                                , newString
+                                , deletedString
+                                , upToDateString
+                                ] <> "."
+    where upToDateString = pluralize "note already up-to-date" "notes already up-to-date" upToDate
+          updatedString = pluralize "note updated" "notes updated" updated
+          newString = pluralize "new note" "new notes" new
+          deletedString = pluralize "note deleted" "notes deleted" deleted
 
 
 -- * Utility functions
 
--- | Counts the number of occurrences of the given value within the given list.
-count :: (Eq a, Foldable t) => a -> t a -> Int
-count needle = foldl' (\accum item -> if item == needle then succ accum else accum) 0
+pluralize :: Text -> Text -> Int -> Text
+pluralize singular _ 1 = "1 " <> singular
+pluralize _ plural n = (pack . show) n <> " " <> plural
