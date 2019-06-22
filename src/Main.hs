@@ -1,5 +1,6 @@
 module Main where
 
+import Prelude hiding (id, log, putStrLn)
 import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (for_)
 import Data.List (foldl')
@@ -7,15 +8,14 @@ import Data.Monoid ((<>))
 import Data.Set ((\\))
 import qualified Data.Set as Set
 import Data.Text (Text, intercalate, pack)
+import Data.Text.IO (putStrLn)
 import Data.Time.Clock (UTCTime)
 import Data.Traversable (for)
 import Data.Version (showVersion)
 import Database.SQLite.Simple
-import Logging
 import Options.Applicative
 import Paths_pinboard_notes_backup (version)
 import Pinboard
-import Prelude hiding (id)
 import System.Exit (exitFailure)
 import Text.PrettyPrint.ANSI.Leijen (Doc, vsep)
 import Types
@@ -55,11 +55,11 @@ pluralize _ plural n = (pack . show) n <> " " <> plural
 
 displayResult :: ApplicationResult -> IO ()
 displayResult (ApplicationResult upToDate updated new deleted) = do
-    logInfo $ intercalate ", " [ updatedString
-                               , newString
-                               , deletedString
-                               , upToDateString
-                               ] <> "."
+    putStrLn $ intercalate ", " [ updatedString
+                                , newString
+                                , deletedString
+                                , upToDateString
+                                ] <> "."
     where upToDateString = pluralize "note already up-to-date" "notes already up-to-date" upToDate
           updatedString = pluralize "note updated" "notes updated" updated
           newString = pluralize "new note" "new notes" new
@@ -68,20 +68,20 @@ displayResult (ApplicationResult upToDate updated new deleted) = do
 
 -- * Command line parsing
 
-data ProgramOptions = ProgramOptions { o_verbosity :: Verbosity
-                                     , o_apiToken :: String
+data ProgramOptions = ProgramOptions { o_apiToken :: String
+                                     , o_verbosity :: Verbosity
                                      , o_databasePath :: String
                                      }
 
 optionsParser :: Options.Applicative.Parser ProgramOptions
 optionsParser = ProgramOptions
-    <$> flag Standard Verbose (short 'v'
-                               <> long "verbose"
-                               <> help verboseHelp)
-    <*> strOption (short 't'
+    <$> strOption (short 't'
                    <> long "token"
                    <> metavar "TOKEN"
                    <> help tokenHelp)
+    <*> flag Standard Verbose (short 'v'
+                               <> long "verbose"
+                               <> help verboseHelp)
     <*> argument str (metavar "FILE"
                       <> help pathHelp)
     where tokenHelp = "Your API token (e.g. maciej:abc123456). "
@@ -120,23 +120,21 @@ main = execParser commandLineOptions >>= main'
 -- * The business logic
 
 main' :: ProgramOptions -> IO ()
-main' (ProgramOptions verbosity apiToken databasePath) = do
-    setApplicationVerbosity verbosity
-
+main' (ProgramOptions apiToken verbosity databasePath) = do
     conn <- open databasePath
     execute_ conn createTableQuery
 
-    result <- runPinboard apiToken $ backUpNotes conn
+    result <- runPinboard apiToken verbosity $ backUpNotes conn
     case result of
-      Left err -> logError err >> exitFailure
+      Left err -> putStrLn err >> exitFailure
       Right result' -> displayResult result'
 
 backUpNotes :: Connection -> PinboardM ApplicationResult
 backUpNotes conn = do
-    liftIO $ logInfo "Downloading the list of notes..."
+    log "Downloading the list of notes..."
     notesList <- getNotesList
 
-    liftIO $ logInfo "Processing notes (this may take a while)..."
+    log "Processing notes (this may take a while)..."
     localNoteOnlyIds <- liftIO $ query_ conn "SELECT id FROM notes"
     let localNoteIds = (Set.fromList . map fromOnly) localNoteOnlyIds
         remoteNoteIds = (Set.fromList . map ns_id) notesList
@@ -151,9 +149,9 @@ backUpNotes conn = do
                                numberToDelete
 
 deleteNote :: Connection -> NoteId -> PinboardM ()
-deleteNote conn noteId = liftIO $ do
-    logDebug $ "Deleting note " <> (noteIdToText noteId)
-    execute conn "DELETE FROM notes WHERE id=?" (Only noteId)
+deleteNote conn noteId = do
+    log $ "Deleting note " <> (noteIdToText noteId)
+    liftIO $ execute conn "DELETE FROM notes WHERE id=?" (Only noteId)
 
 handleNote :: Connection -> NoteSignature -> PinboardM NoteStatus
 handleNote conn (NoteSignature noteId lastUpdated) = do
@@ -166,7 +164,7 @@ handleNote conn (NoteSignature noteId lastUpdated) = do
 
 updateNoteFromServer :: Connection -> NoteId -> PinboardM ()
 updateNoteFromServer conn noteId = do
-    liftIO $ logDebug $ "Downloading note " <> (noteIdToText noteId)
+    logVerbose $ "Downloading note " <> (noteIdToText noteId)
     note <- getNote noteId
     liftIO $ execute conn deleteQuery (Only noteId)
     liftIO $ execute conn insertQuery note

@@ -1,5 +1,6 @@
-module Pinboard (PinboardM, runPinboard, getNote, getNotesList) where
+module Pinboard (Verbosity(..), PinboardM, runPinboard, getNote, getNotesList, log, logVerbose) where
 
+import Prelude hiding (log, putStrLn)
 import Control.Concurrent (threadDelay)
 import Control.Monad.Except
 import Control.Monad.Reader
@@ -12,6 +13,7 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Default.Class
 import Data.Monoid ((<>))
 import Data.Text (Text)
+import Data.Text.IO (putStrLn)
 import Data.Time.Clock (NominalDiffTime, UTCTime, diffUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Version (showVersion)
@@ -36,7 +38,11 @@ returnOrThrow :: Maybe a -> Text -> PinboardM a
 returnOrThrow Nothing err = throwError err
 returnOrThrow (Just value) _ = return value
 
+data Verbosity = Verbose | Standard
+    deriving (Eq)
+
 data PinboardConfig = PinboardConfig { c_token :: String
+                                     , c_verbosity :: Verbosity
                                      }
 
 data PinboardState = PinboardState { s_lastSuccess :: UTCTime
@@ -47,9 +53,9 @@ newtype PinboardM a = Thing {
 } deriving (Applicative, Functor, Monad, MonadIO, MonadReader PinboardConfig,
             MonadState PinboardState, MonadError Text)
 
-runPinboard :: String -> PinboardM a -> IO (Either Text a)
-runPinboard token k =
-    let config = PinboardConfig token
+runPinboard :: String -> Verbosity -> PinboardM a -> IO (Either Text a)
+runPinboard token verbosity k =
+    let config = PinboardConfig token verbosity
         initialState = PinboardState (posixSecondsToUTCTime 0)
      in runExceptT (evalStateT (runReaderT (runPinboardM k) config) initialState)
 
@@ -98,3 +104,16 @@ getNotesList = do
             notes <- (parseMaybe (\obj -> obj .: "notes") bodyObject) :: Maybe [NoteSignature]
             return notes
     returnOrThrow noteSignatures "Error getting the list of notes from the server"
+
+
+-- * Logging
+
+log :: Text -> PinboardM ()
+log = liftIO . putStrLn
+
+-- | Prints the given message, but only if the application was run with --verbose.
+logVerbose :: Text -> PinboardM ()
+logVerbose message = do
+    verbosity <- c_verbosity <$> ask
+    when (verbosity == Verbose) $
+        liftIO $ putStrLn message
