@@ -1,6 +1,6 @@
 # pinboard-notes-backup [![Build Status](https://travis-ci.org/bdesham/pinboard-notes-backup.svg?branch=master)](https://travis-ci.org/bdesham/pinboard-notes-backup)
 
-Efficiently back up the notes you’ve saved to [Pinboard].
+Back up the notes you’ve saved to [Pinboard].
 
 [Pinboard]: https://pinboard.in
 
@@ -10,7 +10,7 @@ If you’re using [Homebrew], you can just run
 
     brew install pinboard-notes-backup
 
-Prebuilt binaries are available for OS X and Linux—find them on [the page for the most recent release][release]. Download the archive for your OS, unpack it, and copy the `pnbackup` binary to some directory in your `PATH`, like `/usr/local/bin`.
+Prebuilt binaries are available for OS X and Linux—find them on [the page for the most recent release][release]. Download the archive for your OS, unpack it, and copy the `pnbackup` binary to some directory in your `PATH`, like `/usr/local/bin`. You may also want to copy the man page, `pnbackup.1`, to a directory like `/usr/local/share/man/man1`.
 
 [Homebrew]: https://brew.sh
 [release]: https://github.com/bdesham/pinboard-notes-backup/releases/latest
@@ -41,7 +41,7 @@ replacing the example API token with your own. This will put all of your notes i
 
 Each time you run the program, it will fetch the list of your notes from the Pinboard server. It will then download any notes that are new or that have been updated on the server, and it will delete any notes that have been deleted from the server. The program does one-way synchronization only: it will update your local database to match what’s on the server but it will never make any changes on the server.
 
-The [Pinboard API] requires a three-second wait time between each request, and the text of each note must be downloaded in a separate request, so the initial download of your notes may take a while. Subsequent syncs should be much shorter, though. If you want to see exactly what `pnbackup` is doing as it works, pass it the `-v` or `--verbose` flags.
+The [Pinboard API] requires a three-second wait time between each request, and the text of each note must be downloaded in a separate request, so the initial download of your notes may take a while. Subsequent syncs will generally be much shorter, depending on how often you add or modify notes and how often you run pnbackup. If you want to see exactly what `pnbackup` is doing as it works, pass it the `-v` or `--verbose` flags.
 
 [password settings]: https://pinboard.in/settings/password
 [Pinboard API]: https://pinboard.in/api/
@@ -68,6 +68,21 @@ Why SQLite and not some plain-text format? In [the words of Paul Ford][Ford],
 > SQLite is incredibly well-documented. It’s also instantly usable as a database from the command line with no pre-processing at all, even for very large files, and there are immediately usable SQLite APIs for every programming language. Plus it’s incredibly easy to turn SQLite data into plain text, it has freely available extensions for geo, full-text, and hierarchical data, and it’s tiny and public-domain.
 
 [Ford]: https://trackchanges.postlight.com/usable-data-5d626d8a6b57
+
+If you've used this application to back up your notes to a file called Notes.sqlite, you could use this quick and dirty Python script to print them in JSON format:
+
+``` python
+#!/usr/bin/env python3
+
+from json import dumps
+import sqlite3
+
+conn = sqlite3.connect("Notes.sqlite")
+conn.row_factory = sqlite3.Row
+curs = conn.cursor()
+curs.execute("SELECT * FROM notes")
+print(dumps([dict(r) for r in curs.fetchall()]))
+```
 
 ## Author
 

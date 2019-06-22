@@ -2,6 +2,7 @@ addons:
   apt:
     packages:
     - libgmp-dev
+    - pandoc
 
 cache:
   directories:
@@ -28,6 +29,7 @@ script:
 - stack setup
 - stack --no-terminal build --no-run-benchmarks --pedantic
 - stack sdist
+- pandoc --to man --standalone --output pnbackup.1 man_page.md
 
 after_success:
 - travis_scripts/attach_binary

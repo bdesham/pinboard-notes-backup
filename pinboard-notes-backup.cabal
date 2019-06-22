@@ -1,6 +1,6 @@
 name:                pinboard-notes-backup
 version:             1.0.3
-synopsis:            Efficiently back up the notes you’ve saved to Pinboard
+synopsis:            Back up the notes you've saved to Pinboard
 description:         Please see README.md
 homepage:            https://github.com/bdesham/pinboard-notes-backup
 license:             GPL-3

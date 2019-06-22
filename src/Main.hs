@@ -38,7 +38,7 @@ optionsParser = ProgramOptions
           verboseHelp = "Display detailed progress information."
           pathHelp = "Filename of the SQLite database where your notes will be stored. "
                      <> "This file will be created if it does not already exist. "
-                     <> "Notes are always stored in a table called “notes”."
+                     <> "Notes are always stored in a table called \"notes\"."
 
 addVersionOption :: Options.Applicative.Parser (a -> a)
 addVersionOption = infoOption ("pnbackup " <> showVersion version)
@@ -46,21 +46,21 @@ addVersionOption = infoOption ("pnbackup " <> showVersion version)
                                <> help "Show the version number"
                                <> hidden)
 
-copyrightInfo :: Doc
-copyrightInfo = vsep [ "Copyright © 2016–2017, 2019 Benjamin D. Esham"
-                     , ""
-                     , "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>."
-                     , "This is free software: you are free to change and redistribute it."
-                     , "There is NO WARRANTY, to the extent permitted by law."
-                     ]
+footerText :: Doc
+footerText = vsep [ "For more information, see \"man pnbackup\"."
+                  , ""
+                  , "Copyright © 2016–2017, 2019 Benjamin D. Esham"
+                  , ""
+                  , "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>."
+                  , "This is free software: you are free to change and redistribute it."
+                  , "There is NO WARRANTY, to the extent permitted by law."
+                  ]
 
 commandLineOptions :: ParserInfo ProgramOptions
 commandLineOptions = info (addVersionOption <*> helper <*> optionsParser) parserInfo
     where parserInfo = fullDesc
-                       <> header ("pnbackup - Back up the notes you’ve saved to Pinboard"
-                                  <> "\n"
-                                  <> "<https://github.com/bdesham/pinboard-notes-backup>")
-                       <> footerDoc (Just copyrightInfo)
+                       <> header "pnbackup -- Back up the notes you've saved to Pinboard"
+                       <> footerDoc (Just footerText)
 
 
 -- * Main
