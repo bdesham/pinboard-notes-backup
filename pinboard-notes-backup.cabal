@@ -1,7 +1,10 @@
 name:                pinboard-notes-backup
 version:             1.0.3
 synopsis:            Back up the notes you've saved to Pinboard
-description:         Please see README.md
+description:         A command-line application to synchronize your notes from
+                     the Pinboard bookmarking service to a local SQLite
+                     database. (This synchronization is one-way only; the
+                     application will never change anything on the server.)
 homepage:            https://github.com/bdesham/pinboard-notes-backup
 license:             GPL-3
 license-file:        LICENSE.txt
