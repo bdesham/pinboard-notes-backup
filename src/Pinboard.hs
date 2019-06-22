@@ -15,7 +15,6 @@ import Data.ByteString.Char8 as B (pack)
 import Data.ByteString.Lazy (ByteString)
 import Data.Default.Class
 import Data.Foldable (for_)
-import Data.List (foldl')
 import Data.Monoid ((<>))
 import Data.Set ((\\))
 import qualified Data.Set as Set
@@ -29,6 +28,7 @@ import Database.SQLite.Simple
 import Network.HTTP.Req
 import Paths_pinboard_notes_backup (version)
 import Types
+import Utils (count)
 
 
 -- * Constants
@@ -57,17 +57,6 @@ deleteQuery = "DELETE FROM notes WHERE id=?"
 
 insertQuery :: Query
 insertQuery = "INSERT INTO notes (id, title, text, hash, created, updated) VALUES(?, ?, ?, ?, ?, ?)"
-
-
--- * Utility functions
-
-returnOrThrow :: Maybe a -> Text -> PinboardM a
-returnOrThrow Nothing err = throwError err
-returnOrThrow (Just value) _ = return value
-
--- | Counts the number of occurrences of the given value within the given list.
-count :: (Eq a, Foldable t) => a -> t a -> Int
-count needle = foldl' (\accum item -> if item == needle then succ accum else accum) 0
 
 
 -- * Types
@@ -126,6 +115,10 @@ reqOptions = do
                      ]
     where userAgent = "pnbackup/" <> showVersion version <> " (+" <> url <> ")"
           url = "https://github.com/bdesham/pinboard-notes-backup"
+
+returnOrThrow :: Maybe a -> Text -> PinboardM a
+returnOrThrow Nothing err = throwError err
+returnOrThrow (Just value) _ = return value
 
 
 -- * Business logic

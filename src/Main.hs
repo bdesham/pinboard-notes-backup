@@ -2,7 +2,7 @@ module Main where
 
 import Prelude hiding (id, putStrLn)
 import Data.Monoid ((<>))
-import Data.Text (Text, intercalate, pack)
+import Data.Text (intercalate)
 import Data.Text.IO (putStrLn)
 import Data.Version (showVersion)
 import Database.SQLite.Simple
@@ -12,6 +12,7 @@ import Pinboard
 import System.Exit (exitFailure)
 import Text.PrettyPrint.ANSI.Leijen (Doc, vsep)
 import Types
+import Utils (pluralize)
 
 
 -- * Command line parsing
@@ -98,10 +99,3 @@ displayResult (ApplicationResult upToDate updated new deleted) = do
           updatedString = pluralize "note updated" "notes updated" updated
           newString = pluralize "new note" "new notes" new
           deletedString = pluralize "note deleted" "notes deleted" deleted
-
-
--- * Utility functions
-
-pluralize :: Text -> Text -> Int -> Text
-pluralize singular _ 1 = "1 " <> singular
-pluralize _ plural n = (pack . show) n <> " " <> plural
