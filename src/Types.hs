@@ -2,6 +2,8 @@ module Types ( Note(..)
              , NoteId
              , NoteSignature(..)
              , noteIdToText
+             , ApplicationResult(..)
+             , Verbosity(..)
              ) where
 
 import Data.Aeson
@@ -60,3 +62,14 @@ instance FromJSON NoteSignature where
                            (o .: "updated_at" >>= timeFromString)
         where timeFromString = parseTimeM False defaultTimeLocale "%Y-%m-%d %H:%M:%S"
     parseJSON other = typeMismatch "NoteSignature" other
+
+-- * ApplicationResult
+
+-- | Structure describing how many notes were updated, newly added, deleted, and already up to date,
+-- respectively.
+data ApplicationResult = ApplicationResult Int Int Int Int
+
+-- * Verbosity
+
+data Verbosity = Verbose | Standard
+    deriving (Eq)

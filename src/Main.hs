@@ -11,6 +11,7 @@ import Paths_pinboard_notes_backup (version)
 import Pinboard
 import System.Exit (exitFailure)
 import Text.PrettyPrint.ANSI.Leijen (Doc, vsep)
+import Types
 
 
 -- * Command line parsing

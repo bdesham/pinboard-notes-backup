@@ -1,6 +1,4 @@
-module Pinboard ( ApplicationResult(..)
-                , Verbosity(..)
-                , PinboardM
+module Pinboard ( PinboardM
                 , runPinboard
                 , backUpNotes
                 ) where
@@ -75,13 +73,6 @@ count needle = foldl' (\accum item -> if item == needle then succ accum else acc
 -- * Types
 
 data NoteStatus = New | Updated | UpToDate
-    deriving (Eq)
-
--- | Structure describing how many notes were updated, newly added, deleted, and already up to date,
--- respectively.
-data ApplicationResult = ApplicationResult Int Int Int Int
-
-data Verbosity = Verbose | Standard
     deriving (Eq)
 
 data PinboardConfig = PinboardConfig { c_token :: String
