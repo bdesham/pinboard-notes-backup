@@ -169,7 +169,7 @@ getNotesList = do
 
 deleteNote :: Connection -> NoteId -> PinboardM ()
 deleteNote conn noteId = do
-    log $ "Deleting note " <> (noteIdToText noteId)
+    logVerbose $ "Deleting note " <> (noteIdToText noteId)
     liftIO $ execute conn deleteQuery (Only noteId)
 
 updateNoteFromServer :: Connection -> NoteId -> PinboardM ()
