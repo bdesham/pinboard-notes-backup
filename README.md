@@ -92,6 +92,15 @@ This project is [hosted on GitHub](https://github.com/bdesham/pinboard-notes-bac
 
 ## Version history
 
+These version numbers approximately follow the [Haskell Package Versioning Policy (PVP)][PVP]. (I say “approximately” because this package contains no libraries—only an executable—and so it does not actually provide an API per se.)
+
+[PVP]: https://pvp.haskell.org/
+
+* 1.0.4 (2019-06-22)
+    - Error messages should now be much more comprehensible, especially for the most common network errors.
+    - Progress messages now go to standard output, not standard error.
+    - The program now has a man page.
+    - A few dependency changes mean that the binary should be smaller.
 * 1.0.3 (2017-11-05): The program now builds against a wider set of dependencies. This will allow it to be installed using [Homebrew]. (There were no changes in functionality.)
 * 1.0.2 (2016-12-05): If any notes had been changed on the server then the application would error out instead of updating the local copy.
 * 1.0.1 (2016-07-20): Tweaked the help text and made some under-the-hood changes.
