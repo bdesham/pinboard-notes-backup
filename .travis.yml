@@ -6,6 +6,7 @@ addons:
   homebrew:
     packages:
     - pandoc
+    update: true
 
 cache:
   directories:
