@@ -3,6 +3,9 @@ addons:
     packages:
     - libgmp-dev
     - pandoc
+  homebrew:
+    packages:
+    - pandoc
 
 cache:
   directories:
