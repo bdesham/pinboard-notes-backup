@@ -12,7 +12,7 @@ import Pinboard
 import System.Exit (exitFailure)
 import Text.PrettyPrint.ANSI.Leijen (Doc, vsep)
 import Types
-import Utils (pluralize)
+import Utils (pluralize, putStrLnErr)
 
 
 -- * Command line parsing
@@ -75,7 +75,7 @@ main' (ProgramOptions apiToken verbosity databasePath) = do
 
     result <- runPinboard apiToken verbosity $ backUpNotes conn
     case result of
-      Left err -> putStrLn err >> exitFailure
+      Left err -> putStrLnErr ("pnbackup: " <> err) >> exitFailure
       Right result' -> displayResult result'
 
 createTableQuery :: Query

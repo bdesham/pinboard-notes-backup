@@ -13,7 +13,6 @@ import Data.Aeson
 import Data.Aeson.Types
 import Data.ByteString.Char8 as B (pack)
 import Data.ByteString.Lazy (ByteString)
-import Data.Default.Class
 import Data.Foldable (for_)
 import Data.Monoid ((<>))
 import Data.Set ((\\))
@@ -28,7 +27,7 @@ import Database.SQLite.Simple
 import Network.HTTP.Req
 import Paths_pinboard_notes_backup (version)
 import Types
-import Utils (count)
+import Utils (count, friendlyReqError)
 
 
 -- * Constants
@@ -76,6 +75,10 @@ newtype PinboardM a = Thing {
 } deriving (Applicative, Functor, Monad, MonadIO, MonadReader PinboardConfig,
             MonadState PinboardState, MonadError Text)
 
+instance MonadHttp PinboardM where
+    handleHttpException :: HttpException -> PinboardM a
+    handleHttpException = throwError . friendlyReqError
+
 runPinboard :: String -> Verbosity -> PinboardM a -> IO (Either Text a)
 runPinboard token verbosity k =
     let config = PinboardConfig token verbosity
@@ -96,15 +99,12 @@ performRequest url = do
         threadDelay (nominalDiffTimeToMicroseconds timeToWait)
 
     opts <- reqOptions
-    response <- liftIO $ runReq def $ req GET url NoReqBody lbsResponse opts
+    response <- req GET url NoReqBody lbsResponse opts
 
     newCurrentTime <- liftIO $ getCurrentTime
     put $ PinboardState newCurrentTime
 
-    let status = responseStatusCode response
-    if status >= 200 && status < 300
-       then return $ responseBody response
-       else throwError "Error communicating with the Pinboard API"
+    return $ responseBody response
 
 reqOptions :: PinboardM (Option scheme)
 reqOptions = do
