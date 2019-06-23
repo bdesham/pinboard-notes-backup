@@ -1,0 +1,3 @@
+#!/bin/bash
+
+pandoc --to man --standalone --output pnbackup.1 man_page.md

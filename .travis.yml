@@ -33,7 +33,7 @@ script:
 - stack setup
 - stack --no-terminal build --no-run-benchmarks --pedantic
 - stack sdist
-- pandoc --to man --standalone --output pnbackup.1 man_page.md
+- ./make_man_page
 
 after_success:
 - travis_scripts/attach_binary
