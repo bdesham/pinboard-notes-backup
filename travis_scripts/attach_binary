@@ -5,6 +5,8 @@ set -o errexit -o verbose
 PROJECT_NAME=pinboard-notes-backup
 BINARY_NAME=pnbackup
 
+TRAVIS_TAG="v1.0.4"
+
 if [[ -z "$TRAVIS_TAG" ]]; then
 	echo "This is not a release build."
 elif [[ -z "$GITHUB_TOKEN" ]]; then
