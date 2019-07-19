@@ -3,10 +3,6 @@ addons:
     packages:
     - libgmp-dev
     - pandoc
-  homebrew:
-    packages:
-    - pandoc
-    update: true
 
 cache:
   directories:
@@ -33,7 +29,6 @@ script:
 - stack setup
 - stack --no-terminal build --no-run-benchmarks --pedantic
 - stack sdist
-- ./make_man_page
 
 after_success:
 - travis_scripts/attach_binary

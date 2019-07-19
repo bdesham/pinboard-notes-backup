@@ -18,7 +18,7 @@ else
 
 	LABEL=$PROJECT_NAME-$TRAVIS_TAG-$TRAVIS_OS_NAME
 	mkdir "$LABEL"
-	cp README.md LICENSE.txt pnbackup.1 "$BINARY_FILE" "$LABEL"
+	cp README.md LICENSE.txt man/pnbackup.1 "$BINARY_FILE" "$LABEL"
 	tar -czvf "$LABEL.tar.gz" "$LABEL"
 
 	github-release upload \
