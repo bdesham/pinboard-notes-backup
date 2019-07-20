@@ -14,7 +14,10 @@ copyright:           2016-2017, 2019 Benjamin D. Esham
 category:            Backup, Web
 build-type:          Simple
 cabal-version:       >= 1.10
-extra-source-files:  man/pnbackup.1
+extra-source-files:  README.md
+                     stack.yaml
+                     stack.yaml.lock
+                     man/pnbackup.1
 
 source-repository head
   type:     git
