@@ -96,6 +96,10 @@ These version numbers approximately follow the [Haskell Package Versioning Polic
 
 [PVP]: https://pvp.haskell.org/
 
+* 1.0.4.1 (2019-07-19)
+    - The “built” version of the man page is now included in version control (in the `man` directory) and in the package produced by `cabal sdist`/`stack sdist`. (It was previously necessary to create this yourself by feeding the Markdown source file to Pandoc.)
+    - Changed the categories and the description in the cabal file.
+    - There were no changes to the code.
 * 1.0.4 (2019-06-22)
     - Error messages should now be much more comprehensible, especially for the most common network errors.
     - Progress messages now go to standard output, not standard error.
