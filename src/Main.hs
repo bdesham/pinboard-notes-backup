@@ -32,7 +32,8 @@ optionsParser = ProgramOptions
                                <> long "verbose"
                                <> help verboseHelp)
     <*> argument str (metavar "FILE"
-                      <> help pathHelp)
+                      <> help pathHelp
+                      <> action "file")
     where tokenHelp = "Your API token (e.g. maciej:abc123456). "
                       <> "You can find this at <https://pinboard.in/settings/password>."
           verboseHelp = "Display detailed progress information."
