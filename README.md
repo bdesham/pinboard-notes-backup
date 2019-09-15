@@ -133,6 +133,9 @@ These version numbers approximately follow the [Haskell Package Versioning Polic
 
 [PVP]: https://pvp.haskell.org/
 
+* 1.0.5 (2019-09-15)
+    - The Bash and Zsh completion scripts are now told explicitly that the “FILE” argument should be completed with a filename. (This seems to have been the default behavior for both shells anyway, so this may not represent an actual change in functionality.)
+    - The application now builds against a wider range of dependencies.
 * 1.0.4.1 (2019-07-19)
     - The “built” version of the man page is now included in version control (in the `man` directory) and in the package produced by `cabal sdist`/`stack sdist`. (It was previously necessary to create this yourself by feeding the Markdown source file to Pandoc.)
     - Changed the categories and the description in the cabal file.
