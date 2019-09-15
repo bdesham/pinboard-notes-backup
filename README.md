@@ -6,13 +6,50 @@ Back up the notes you’ve saved to [Pinboard].
 
 ## Installation
 
+### Homebrew
+
 If you’re using [Homebrew], you can just run
 
     brew install pinboard-notes-backup
 
-Prebuilt binaries are available for OS X and Linux—find them on [the page for the most recent release][release]. Download the archive for your OS, unpack it, and copy the `pnbackup` binary to some directory in your `PATH`, like `/usr/local/bin`. You may also want to copy the man page, `pnbackup.1`, to a directory like `/usr/local/share/man/man1`.
-
 [Homebrew]: https://brew.sh
+
+### Nix
+
+If you’re using the [Nix] package manager, run
+
+    nix-env -i -A nixpkgs.pinboard-notes-backup
+
+If you use NixOS, run
+
+    nix-env -i -A nixos.pinboard-notes-backup
+
+[Nix]: https://nixos.org/nix/
+
+### Manual installation
+
+Prebuilt binaries are available for OS X and Linux—find them on [the page for the most recent release][release]. To install the program from one of these,
+
+1. Download the archive for your OS and unpack it.
+
+2. Copy the `pnbackup` binary to some directory in your `PATH`, like `/usr/local/bin`.
+
+3. *Optional:* Install the man page by running
+
+       install -D --mode=444 pnbackup.1 /usr/local/share/man/man1
+
+4. *Optional:* Generate and install a Bash completion script by running
+
+       mkdir -p /usr/local/etc/bash_completion.d
+       pnbackup --bash-completion-script $(which pnbackup) > \
+           /usr/local/etc/bash_completion.d/pnbackup.bash
+
+5. *Optional:* Generate and install a Zsh completion script by running
+
+       mkdir -p /usr/local/share/zsh/site-functions
+       pnbackup --zsh-completion-script $(which pnbackup) > \
+           /usr/local/share/zsh/site-functions/_pnbackup
+
 [release]: https://github.com/bdesham/pinboard-notes-backup/releases/latest
 
 ### Building from source
@@ -25,7 +62,7 @@ to download and install GHC (the Haskell compiler) and then
 
     stack install
 
-to build the `pnbackup` binary and install it. (The default installation directory is `~/.local/bin`; you probably want to copy the executable from there into some directory that is listed in your `PATH`.)
+to build the `pnbackup` binary and install it. (The default installation directory is `~/.local/bin`; pass an argument like `--local-bin-path=/usr/local/bin` to change this.)
 
 [Stack]: http://docs.haskellstack.org/en/stable/README/
 
@@ -50,7 +87,7 @@ The [Pinboard API] requires a three-second wait time between each request, and t
 
 Your notes are stored in a table called “notes” with the following schema:
 
-```
+``` sql
 CREATE TABLE notes (
     id TEXT NOT NULL UNIQUE,
     title TEXT NOT NULL,
