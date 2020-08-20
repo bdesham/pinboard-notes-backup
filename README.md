@@ -1,4 +1,4 @@
-# pinboard-notes-backup [![Build Status](https://travis-ci.org/bdesham/pinboard-notes-backup.svg?branch=master)](https://travis-ci.org/bdesham/pinboard-notes-backup)
+# pinboard-notes-backup [![Build Status](https://travis-ci.org/bdesham/pinboard-notes-backup.svg?branch=main)](https://travis-ci.org/bdesham/pinboard-notes-backup)
 
 Back up the notes you’ve saved to [Pinboard].
 
