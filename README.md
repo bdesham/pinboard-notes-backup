@@ -133,6 +133,8 @@ These version numbers approximately follow the [Haskell Package Versioning Polic
 
 [PVP]: https://pvp.haskell.org/
 
+* 1.0.5.1 (2021-02-27)
+    - The program now builds against a wider set of dependencies. There were no changes in functionality.
 * 1.0.5 (2019-09-15)
     - The Bash and Zsh completion scripts are now told explicitly that the “FILE” argument should be completed with a filename. (This seems to have been the default behavior for both shells anyway, so this may not represent an actual change in functionality.)
     - The application now builds against a wider range of dependencies.
@@ -159,7 +161,7 @@ The scripts in the “travis_scripts” folder were adapted from scripts written
 
 The rest of the code in this repository is released under the following terms:
 
-Copyright © 2016–2017, 2019 Benjamin D. Esham.
+Copyright © 2016–2017, 2019, 2021 Benjamin D. Esham.
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
