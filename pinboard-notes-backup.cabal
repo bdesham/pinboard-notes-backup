@@ -45,5 +45,10 @@ executable pnbackup
                        GeneralizedNewtypeDeriving
                        InstanceSigs
                        OverloadedStrings
-  ghc-options:         -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
-                       -fno-warn-unused-do-bind
+  ghc-options:         -Wall -Wcompat
+                       -Wmissing-export-lists
+                       -Wincomplete-record-updates
+                       -Wincomplete-uni-patterns
+                       -Wredundant-constraints
+                       -Widentities
+                       -Wpartial-fields

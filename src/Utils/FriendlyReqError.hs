@@ -1,4 +1,4 @@
-module Utils.FriendlyReqError where
+module Utils.FriendlyReqError (friendlyReqError) where
 
 import Data.Text (Text, isInfixOf, pack)
 import Network.HTTP.Client
