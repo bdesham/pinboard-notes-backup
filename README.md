@@ -1,4 +1,4 @@
-# pinboard-notes-backup [![Build Status](https://travis-ci.org/bdesham/pinboard-notes-backup.svg?branch=main)](https://travis-ci.org/bdesham/pinboard-notes-backup)
+# pinboard-notes-backup [![Build](https://github.com/bdesham/pinboard-notes-backup/actions/workflows/main.yaml/badge.svg)](https://github.com/bdesham/pinboard-notes-backup/actions/workflows/main.yaml)
 
 Back up the notes you’ve saved to [Pinboard].
 
@@ -157,13 +157,6 @@ These version numbers approximately follow the [Haskell Package Versioning Polic
 * 1.0.0 (2016-06-28): Initial release.
 
 ## License
-
-The scripts in the “travis_scripts” folder were adapted from scripts written by Taylor Fausak for the [Octane] project. They are released under [the license of that project][Octane license].
-
-[Octane]: https://github.com/tfausak/octane
-[Octane license]: https://github.com/tfausak/octane/blob/04ea434f476d30c3c8327d8ed9afdc6ae246f2ae/LICENSE.markdown
-
-The rest of the code in this repository is released under the following terms:
 
 Copyright © 2016–2017, 2019, 2021 Benjamin D. Esham.
 

@@ -1,0 +1,79 @@
+name: Build against latest Stackage nightly
+on:
+  push:
+    branches:
+      main
+  schedule:
+    # Run this workflow daily at 4:44 AM UTC
+    - cron: "44 4 * * *"
+jobs:
+  build-nightly:
+    runs-on: ubuntu-latest
+    name: Build against latest Stackage nightly
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Overwrite stack.yaml to use latest nightly
+        shell: python
+        run: |
+          from datetime import date, timedelta
+          from sys import exit
+          from time import sleep
+          from urllib.error import HTTPError
+          from urllib.request import urlopen
+
+          today = date.today()
+          resolver = None
+          for d in range(0, -5, -1):
+            date_to_try = (today + timedelta(days=d)).isoformat()
+            try:
+              resolver_to_try = f"nightly-{date_to_try}"
+              print(f"Trying {resolver_to_try}...")
+              status = urlopen(f"https://www.stackage.org/{resolver_to_try}").status
+              if status == 200:
+                print("Good")
+                resolver = resolver_to_try
+                break
+            except HTTPError:
+              print("Does not exist")
+              sleep(3)
+
+          if resolver is None:
+            print("Could not find a recent Stackage nightly")
+            exit(1)
+
+          lines = []
+          with open("stack.yaml", "r") as f:
+            for line in f:
+              if line.startswith("resolver: "):
+                lines.append(f"resolver: {resolver}")
+              else:
+                lines.append(line)
+          with open("stack.yaml", "w") as f:
+            f.write("\n".join(lines))
+            f.write("\n")
+
+      - name: Retrieve .stack from cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-stack-work
+        with:
+          path: "~/.stack"
+          key: "stack-${{ runner.os }}-nightly-${{ hashFiles('stack.yaml') }}"
+          restore-keys: |
+            stack-${{ runner.os }}-nightly-
+            stack-${{ runner.os }}-
+
+      - name: Set up Haskell
+        uses: haskell/actions/setup@v1
+        with:
+          ghc-version: latest
+          enable-stack: true
+          stack-version: latest
+
+      - name: Build
+        run: |
+          echo "::group::Show stack.yaml"
+          cat stack.yaml
+          echo "::endgroup::"
+          stack --no-terminal build --no-run-benchmarks
