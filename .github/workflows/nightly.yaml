@@ -24,7 +24,7 @@ jobs:
 
           today = date.today()
           resolver = None
-          for d in range(0, -5, -1):
+          for d in range(0, -10, -1):
             date_to_try = (today + timedelta(days=d)).isoformat()
             try:
               resolver_to_try = f"nightly-{date_to_try}"
