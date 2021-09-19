@@ -4,8 +4,8 @@ on:
     branches:
       main
   schedule:
-    # Run this workflow daily at 4:44 AM UTC
-    - cron: "44 4 * * *"
+    # Run this workflow every Tuesday at 4:44 AM UTC
+    - cron: "44 4 * * 2"
 jobs:
   build-nightly:
     runs-on: ubuntu-latest
