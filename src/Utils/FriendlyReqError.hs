@@ -21,8 +21,8 @@ friendlyReqError (Req.VanillaHttpException (HttpExceptionRequest _ ConnectionTim
 
 friendlyReqError (Req.VanillaHttpException (HttpExceptionRequest _ (ConnectionFailure exc)))
   | "nodename nor servname provided, or not known" `isInfixOf` (pack (show exc)) =
-      "Error: The Pinboard server's IP address could not be looked up. Are\n\
-	  \you sure your internet connection is active?"
+      "Error: The Pinboard server's IP address could not be looked up. Are\n" <>
+      "you sure your internet connection is active?"
   | otherwise = "Could not connect to the server: " <> pack (show exc)
 
 friendlyReqError (Req.VanillaHttpException (HttpExceptionRequest _ other)) =
