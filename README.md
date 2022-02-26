@@ -66,6 +66,14 @@ to build the `pnbackup` binary and install it. (The default installation directo
 
 [Stack]: http://docs.haskellstack.org/en/stable/README/
 
+You can also build the project with cabal-install, but I’m less familiar with that approach.
+
+This project [uses GitHub Actions][actions] for automated building. The build is checked on the latest versions of macOS and Ubuntu Linux, with various combinations of Stack, cabal-install, and GHC 8.6.x, 8.8.x, 8.10.x, and 9.0.x. The project does *not* currently build under GHC 9.2.x because of [a temporary incompatibility] between [req] and that GHC version.
+
+[actions]: https://github.com/bdesham/pinboard-notes-backup/actions
+[a temporary incompatibility]: https://github.com/mrkkrp/req/pull/125
+[req]: https://github.com/mrkkrp/req
+
 ## Usage
 
 First you’ll need to grab your Pinboard API token from Pinboard’s [password settings] page. It’s a string like “maciej:abc123456”.

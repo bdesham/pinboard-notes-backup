@@ -1,13 +1,58 @@
 name: Build
 on: push
 jobs:
-  build:
+  cabal-build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ["8.6", "8.8", "8.10", "9.0", "9.2", "latest"]
+        ghc: ["8.6", "8.8", "8.10", "9.0"]
+        cabal: ["2.4", "3.4", "3.6"]
         os: [ubuntu-latest, macOS-latest]
-    name: Build with GHC ${{ matrix.ghc }} on ${{ matrix.os }}
+        # GHC 8.8 and later require Cabal 3
+        exclude:
+          - cabal: 2.4
+            ghc: 8.8
+          - cabal: 2.4
+            ghc: 8.10
+          - cabal: 2.4
+            ghc: 9.0
+    name: Cabal ${{ matrix.cabal }} and GHC ${{ matrix.ghc }} on ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Retrieve .cabal from cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-cabal
+        with:
+          path: "~/.cabal"
+          key: "cabal-${{ runner.os }}-ghc-${{ matrix.ghc }}"
+          restore-keys: |
+            cabal-${{ runner.os }}-ghc-${{ matrix.ghc }}-
+            cabal-${{ runner.os }}-
+
+      - name: Set up Haskell
+        uses: haskell/actions/setup@v1.2.9
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
+          enable-stack: false
+
+      - name: Cabal update
+        run: cabal v2-update
+
+      - name: Cabal freeze
+        run: cabal v2-freeze
+
+      - name: Cabal build
+        run: cabal v2-build
+
+  stack-build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+    name: Stack on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
 
@@ -17,15 +62,13 @@ jobs:
           cache-name: cache-stack-work
         with:
           path: "~/.stack"
-          key: "stack-${{ runner.os }}-ghc-${{ matrix.ghc }}-${{ hashFiles('stack.yaml.lock') }}"
+          key: "stack-${{ runner.os }}-${{ hashFiles('stack.yaml.lock') }}"
           restore-keys: |
-            stack-${{ runner.os }}-ghc-${{ matrix.ghc }}-
             stack-${{ runner.os }}-
 
       - name: Set up Haskell
-        uses: haskell/actions/setup@v1
+        uses: haskell/actions/setup@v1.2.9
         with:
-          ghc-version: ${{ matrix.ghc }}
           enable-stack: true
           stack-version: latest
 
