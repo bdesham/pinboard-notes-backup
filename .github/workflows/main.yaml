@@ -89,7 +89,7 @@ jobs:
           echo "LABEL=$LABEL" >> $GITHUB_ENV
 
       - name: Create release tarball
-        if: "${{ startsWith(github.ref, 'refs/tags/v') && matrix.ghc == 'latest' }}"
+        if: "${{ startsWith(github.ref, 'refs/tags/v') }}"
         run: |
           OS=$(echo "${{ runner.os }}" | tr '[A-Z]' '[a-z]')
           mkdir $LABEL
@@ -99,7 +99,7 @@ jobs:
 
       - name: Add release assets
         uses: softprops/action-gh-release@e99df7cd8088d9c5dddab02bf975f62025a6e760
-        if: "${{ startsWith(github.ref, 'refs/tags/v') && matrix.ghc == 'latest' && endsWith(matrix.os, '-latest') }}"
+        if: "${{ startsWith(github.ref, 'refs/tags/v') }}"
         with:
           draft: true
           files: "pinboard-notes-backup-*.tar.gz"
