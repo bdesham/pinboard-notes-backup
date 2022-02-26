@@ -14,7 +14,6 @@ import Data.Aeson.Types
 import Data.ByteString.Char8 as B (pack)
 import Data.ByteString.Lazy (ByteString)
 import Data.Foldable (for_)
-import Data.Monoid ((<>))
 import Data.Set ((\\))
 import qualified Data.Set as Set
 import Data.Text (Text)

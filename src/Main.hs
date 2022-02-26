@@ -3,7 +3,6 @@
 module Main where
 
 import Prelude hiding (id, putStrLn)
-import Data.Monoid ((<>))
 import Data.Text (intercalate)
 import Data.Text.IO (putStrLn)
 import Data.Version (showVersion)
