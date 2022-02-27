@@ -12,7 +12,8 @@ copyright:           2016-2017, 2019, 2021-2022 Benjamin D. Esham
 category:            Backup, CLI, Pinboard
 build-type:          Simple
 cabal-version:       >= 1.10
-extra-source-files:  README.md
+extra-source-files:  CHANGELOG.md
+                     README.md
                      stack.yaml
                      stack.yaml.lock
                      man/pnbackup.1
