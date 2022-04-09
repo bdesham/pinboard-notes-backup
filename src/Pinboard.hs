@@ -17,7 +17,7 @@ import Data.ByteString.Char8 as B (pack)
 import Data.ByteString.Lazy (ByteString)
 import Data.Foldable (for_)
 #if !MIN_VERSION_base(4, 11, 0)
-    import Data.Monoid ((<>))
+import Data.Monoid ((<>))
 #endif
 import Data.Set ((\\))
 import qualified Data.Set as Set
