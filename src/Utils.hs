@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Utils ( count
              , friendlyReqError
              , pluralize
@@ -5,6 +7,9 @@ module Utils ( count
              ) where
 
 import Data.List (foldl')
+#if !MIN_VERSION_base(4, 11, 0)
+import Data.Monoid ((<>))
+#endif
 import Data.Text (Text, pack)
 import Data.Text.IO (hPutStrLn)
 import System.IO (hFlush, stderr, stdout)

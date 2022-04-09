@@ -1,5 +1,10 @@
+{-# LANGUAGE CPP #-}
+
 module Utils.FriendlyReqError (friendlyReqError) where
 
+#if !MIN_VERSION_base(4, 11, 0)
+import Data.Monoid ((<>))
+#endif
 import Data.Text (Text, isInfixOf, pack)
 import Network.HTTP.Client
 import qualified Network.HTTP.Req as Req
