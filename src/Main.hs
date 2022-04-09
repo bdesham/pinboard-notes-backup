@@ -1,8 +1,12 @@
 {-# OPTIONS_GHC -Wno-missing-export-lists #-}
+{-# LANGUAGE CPP #-}
 
 module Main where
 
 import Prelude hiding (id, putStrLn)
+#if !MIN_VERSION_base(4, 11, 0)
+    import Data.Monoid ((<>))
+#endif
 import Data.Text (intercalate)
 import Data.Text.IO (putStrLn)
 import Data.Version (showVersion)
