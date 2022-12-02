@@ -5,17 +5,39 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ["8.6", "8.8", "8.10", "9.0"]
-        cabal: ["2.4", "3.4", "3.6"]
-        os: [ubuntu-latest, macOS-latest]
-        # GHC 8.8 and later require Cabal 3
-        exclude:
-          - cabal: 2.4
-            ghc: 8.8
-          - cabal: 2.4
-            ghc: 8.10
-          - cabal: 2.4
-            ghc: 9.0
+        include:
+          - os: ubuntu-latest
+            ghc: "8.6"
+            cabal: latest
+          - os: ubuntu-latest
+            ghc: "8.8"
+            cabal: latest
+          - os: ubuntu-latest
+            ghc: "8.10"
+            cabal: latest
+          - os: ubuntu-latest
+            ghc: "9.0"
+            cabal: latest
+          - os: ubuntu-latest
+            ghc: "9.2"
+            cabal: latest
+          - os: ubuntu-latest
+            ghc: "9.4"
+            cabal: latest
+          # Test with older versions of Cabal
+          - os: ubuntu-latest
+            ghc: "8.6"
+            cabal: "2.4"
+          - os: ubuntu-latest
+            ghc: "9.4"
+            cabal: "3.6"
+          # Test the oldest and newest supported GHCs on macOS
+          - os: macOS-latest
+            ghc: "8.6"
+            cabal: latest
+          - os: macOS-latest
+            ghc: "9.4"
+            cabal: latest
     name: Cabal ${{ matrix.cabal }} and GHC ${{ matrix.ghc }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
