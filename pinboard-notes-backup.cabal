@@ -1,5 +1,5 @@
 name:                pinboard-notes-backup
-version:             1.0.5.5
+version:             1.0.5.6
 synopsis:            Back up the notes you've saved to Pinboard
 description:         A command-line application to back up your notes from the
                      Pinboard bookmarking service to a local SQLite database.
