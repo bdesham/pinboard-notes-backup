@@ -18,10 +18,10 @@ jobs:
             ghc: 9.0
     name: Cabal ${{ matrix.cabal }} and GHC ${{ matrix.ghc }} on ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Retrieve .cabal from cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-cabal
         with:
@@ -32,7 +32,7 @@ jobs:
             cabal-${{ runner.os }}-
 
       - name: Set up Haskell
-        uses: haskell/actions/setup@v1.2.9
+        uses: haskell/actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: ${{ matrix.cabal }}
@@ -54,10 +54,10 @@ jobs:
         os: [ubuntu-latest, macOS-latest]
     name: Stack on ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Retrieve .stack from cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-stack-work
         with:
@@ -67,7 +67,7 @@ jobs:
             stack-${{ runner.os }}-
 
       - name: Set up Haskell
-        uses: haskell/actions/setup@v1.2.9
+        uses: haskell/actions/setup@v2
         with:
           enable-stack: true
           stack-version: latest

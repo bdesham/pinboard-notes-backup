@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build against latest Stackage nightly
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Overwrite stack.yaml to use latest nightly
         shell: python
@@ -54,7 +54,7 @@ jobs:
             f.write("\n")
 
       - name: Retrieve .stack from cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-stack-work
         with:
