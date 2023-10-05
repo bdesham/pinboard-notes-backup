@@ -5,6 +5,7 @@ module Pinboard ( PinboardM
 
 import Prelude hiding (log, putStrLn)
 import Control.Concurrent (threadDelay)
+import Control.Monad (when)
 import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.State.Class
