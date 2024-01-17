@@ -4,6 +4,10 @@ These version numbers approximately follow the [Haskell Package Versioning Polic
 
 [PVP]: https://pvp.haskell.org/
 
+## 1.0.5.7 (2024-01-16)
+
+The program now builds against a wider set of dependencies. There were no changes in functionality.
+
 ## 1.0.5.6 (2022-12-02)
 
 The program now builds against a wider set of dependencies. There were no changes in functionality.
