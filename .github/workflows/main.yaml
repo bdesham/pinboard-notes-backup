@@ -63,9 +63,6 @@ jobs:
       - name: Cabal update
         run: cabal v2-update
 
-      - name: Cabal freeze
-        run: cabal v2-freeze
-
       - name: Cabal build
         run: cabal v2-build
 
