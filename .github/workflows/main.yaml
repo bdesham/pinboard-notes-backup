@@ -26,9 +26,6 @@ jobs:
             cabal: latest
           # Test with older versions of Cabal
           - os: ubuntu-latest
-            ghc: "8.6"
-            cabal: "2.4"
-          - os: ubuntu-latest
             ghc: "9.4"
             cabal: "3.6"
           # Test the oldest and newest supported GHCs on macOS
