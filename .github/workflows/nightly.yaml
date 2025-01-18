@@ -65,7 +65,7 @@ jobs:
             stack-${{ runner.os }}-
 
       - name: Set up Haskell
-        uses: haskell/actions/setup@v1.2.9
+        uses: haskell-actions/setup@v2.7.9
         with:
           ghc-version: latest
           enable-stack: true
