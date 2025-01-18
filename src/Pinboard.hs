@@ -145,11 +145,17 @@ backUpNotes conn = do
 handleNote :: Connection -> NoteSignature -> PinboardM NoteStatus
 handleNote conn (NoteSignature noteId lastUpdated) = do
     lastUpdatedLocally <- liftIO $ query conn selectUpdatedQuery (Only noteId)
-    if length (lastUpdatedLocally :: [Only UTCTime]) == 0
-       then updateNoteFromServer conn noteId >> return New
-       else if (fromOnly $ head lastUpdatedLocally) < lastUpdated
-               then updateNoteFromServer conn noteId >> return Updated
-               else return UpToDate
+    case lastUpdatedLocally of
+        [] -> updateNoteFromServer conn noteId >> return New
+        [Only lastUpdatedLocally'] ->
+            if lastUpdatedLocally' < lastUpdated
+                then updateNoteFromServer conn noteId >> return Updated
+                else return UpToDate
+        _ ->
+            throwError $
+                "There are multiple notes with the id "
+                    <> noteIdToText noteId
+                    <> ". This should never happen!"
 
 getNote :: NoteId -> PinboardM Note
 getNote noteId = do
