@@ -1,1 +1,6 @@
-resolver: lts-13.26
+resolver: lts-23.5
+extra-deps:
+  # Version 2.0 of the tls package started requiring hosts to support Extended
+  # Main Secret, but the Pinboard server doesn't support this and so the
+  # program would fail at runtime if build with tls 2.0 or later. See issue #1.
+  - tls-1.9.0@sha256:8ad332dc0224decb1b137bf6c9678b4f786487b9aaa5c9068cd3ad19d42c39a7,5571
