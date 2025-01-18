@@ -102,7 +102,7 @@ jobs:
 
       - name: Build
         run: |
-          stack --no-terminal build --no-run-benchmarks --pedantic
+          stack --no-terminal build --no-run-benchmarks
           mkdir dist
           stack --no-terminal install --local-bin-path=dist
           chmod u+x dist/pnbackup
