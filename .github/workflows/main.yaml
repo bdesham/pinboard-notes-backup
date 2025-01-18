@@ -24,19 +24,25 @@ jobs:
           - os: ubuntu-latest
             ghc: "9.4"
             cabal: latest
+          - os: ubuntu-latest
+            ghc: "9.6"
+            cabal: latest
+          - os: ubuntu-latest
+            ghc: "9.8"
+            cabal: latest
           # Test with older versions of Cabal
           - os: ubuntu-latest
             ghc: "8.6"
             cabal: "2.4"
           - os: ubuntu-latest
-            ghc: "9.4"
+            ghc: "9.8"
             cabal: "3.6"
           # Test the oldest and newest supported GHCs on macOS
           - os: macOS-latest
-            ghc: "8.6"
+            ghc: "8.10"
             cabal: latest
           - os: macOS-latest
-            ghc: "9.4"
+            ghc: "9.8"
             cabal: latest
     name: Cabal ${{ matrix.cabal }} and GHC ${{ matrix.ghc }} on ${{ matrix.os }}
     steps:
