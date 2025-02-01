@@ -51,7 +51,7 @@ addVersionOption = infoOption ("pnbackup " <> showVersion version)
 footerText :: Doc
 footerText = vsep [ "For more information, see \"man pnbackup\"."
                   , ""
-                  , "Copyright © 2016–2017, 2019, 2021–2024 Benjamin D. Esham"
+                  , "Copyright © 2016–2017, 2019, 2021–2025 Benjamin D. Esham"
                   , ""
                   , "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>."
                   , "This is free software: you are free to change and redistribute it."

@@ -4,6 +4,11 @@ These version numbers approximately follow the [Haskell Package Versioning Polic
 
 [PVP]: https://pvp.haskell.org/
 
+## 1.0.6 (2025-02-01)
+
+- If the database contains two notes with the same ID, the program will now abort rather than try to update any of them. (A database constraint should have prevented this situation from ever occurring; this is more of a “belt and braces” change than anything.)
+- The application now builds against a wider range of dependencies.
+
 ## 1.0.5.7 (2024-01-16)
 
 The program now builds against a wider set of dependencies. There were no changes in functionality.

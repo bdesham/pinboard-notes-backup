@@ -85,7 +85,7 @@ The project is hosted at <https://github.com/bdesham/pinboard-notes-backup>.
 
 # LICENSE
 
-Copyright © 2016–2017, 2019, 2021–2024 Benjamin D.\ Esham.
+Copyright © 2016–2017, 2019, 2021–2025 Benjamin D.\ Esham.
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
