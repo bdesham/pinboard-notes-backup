@@ -81,6 +81,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, macOS-latest]
     name: Stack on ${{ matrix.os }}
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
 
@@ -108,7 +110,7 @@ jobs:
           chmod u+x dist/pnbackup
 
       - name: Set environment variables
-        if: "${{ startsWith(github.ref, 'refs/tags/v') }}"
+        if: "startsWith(github.ref, 'refs/tags/v')"
         run: |
           REF=${{ github.ref }}
           VERSION=${REF/refs\/tags\/v/}
@@ -117,7 +119,7 @@ jobs:
           echo "LABEL=$LABEL" >> $GITHUB_ENV
 
       - name: Create release tarball
-        if: "${{ startsWith(github.ref, 'refs/tags/v') }}"
+        if: "startsWith(github.ref, 'refs/tags/v')"
         run: |
           OS=$(echo "${{ runner.os }}" | tr '[A-Z]' '[a-z]')
           mkdir $LABEL
@@ -126,8 +128,8 @@ jobs:
           tar -czvf $LABEL-$OS.tar.gz $LABEL
 
       - name: Add release assets
-        uses: softprops/action-gh-release@e99df7cd8088d9c5dddab02bf975f62025a6e760
-        if: "${{ startsWith(github.ref, 'refs/tags/v') }}"
+        uses: softprops/action-gh-release@v2.2.1
+        if: "startsWith(github.ref, 'refs/tags/v')"
         with:
           draft: true
           files: "pinboard-notes-backup-*.tar.gz"
