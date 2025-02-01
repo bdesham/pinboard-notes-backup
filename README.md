@@ -28,7 +28,7 @@ If you use NixOS, run
 
 ### Manual installation
 
-Prebuilt binaries are available for OS X and Linux—find them on [the page for the most recent release][release]. To install the program from one of these,
+Prebuilt binaries are available for macOS and Linux—find them on [the page for the most recent release][release]. To install the program from one of these,
 
 1. Download the archive for your OS and unpack it.
 
@@ -41,13 +41,13 @@ Prebuilt binaries are available for OS X and Linux—find them on [the page for 
 4. *Optional:* Generate and install a Bash completion script by running
 
        mkdir -p /usr/local/etc/bash_completion.d
-       pnbackup --bash-completion-script $(which pnbackup) > \
+       pnbackup --bash-completion-script "$(which pnbackup)" > \
            /usr/local/etc/bash_completion.d/pnbackup.bash
 
 5. *Optional:* Generate and install a Zsh completion script by running
 
        mkdir -p /usr/local/share/zsh/site-functions
-       pnbackup --zsh-completion-script $(which pnbackup) > \
+       pnbackup --zsh-completion-script "$(which pnbackup)" > \
            /usr/local/share/zsh/site-functions/_pnbackup
 
 [release]: https://github.com/bdesham/pinboard-notes-backup/releases/latest
@@ -60,9 +60,9 @@ This is a Haskell program that you can build using [Stack]. With Stack installed
 
 to download and install GHC (the Haskell compiler) and then
 
-    stack install
+    stack install --local-bin-path=/usr/local/bin
 
-to build the `pnbackup` binary and install it. (The default installation directory is `~/.local/bin`; pass an argument like `--local-bin-path=/usr/local/bin` to change this.)
+to build the `pnbackup` binary and install it. You may of course specify a different installation directory if you wish.
 
 [Stack]: http://docs.haskellstack.org/en/stable/README/
 
