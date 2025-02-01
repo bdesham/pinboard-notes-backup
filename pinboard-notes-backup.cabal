@@ -31,7 +31,7 @@ executable pnbackup
                        , aeson                >= 0.8  && < 2.3
                        , ansi-wl-pprint       >= 0.6  && < 1.1
                        , bytestring           >= 0.10 && < 0.13
-                       , containers           >= 0.5  && < 0.7
+                       , containers           >= 0.5  && < 0.8
                        , http-client          >= 0.5  && < 0.8
                        , http-types           >= 0.12 && < 0.13
                        , mtl                  >= 2.2  && < 2.4
@@ -39,7 +39,7 @@ executable pnbackup
                        , req                  >= 1.0  && < 3.14
                        , sqlite-simple        >= 0.4  && < 0.5
                        , text                 >= 1.2  && < 2.2
-                       , time                 >= 1.5  && < 1.13
+                       , time                 >= 1.5  && < 1.15
   default-extensions:  DataKinds
                        DeriveFunctor
                        GeneralizedNewtypeDeriving
