@@ -14,44 +14,19 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Overwrite stack.yaml to use latest nightly
-        shell: python
+        shell: bash
         run: |
-          from datetime import date, timedelta
-          from sys import exit
-          from time import sleep
-          from urllib.error import HTTPError
-          from urllib.request import urlopen
+          result="$(curl -sSL -b /dev/null -o /dev/null -w '%{http_code} %{url_effective}' 'https://www.stackage.org/nightly')"
 
-          today = date.today()
-          resolver = None
-          for d in range(0, -10, -1):
-            date_to_try = (today + timedelta(days=d)).isoformat()
-            try:
-              resolver_to_try = f"nightly-{date_to_try}"
-              print(f"Trying {resolver_to_try}...")
-              status = urlopen(f"https://www.stackage.org/{resolver_to_try}").status
-              if status == 200:
-                print("Good")
-                resolver = resolver_to_try
-                break
-            except HTTPError:
-              print("Does not exist")
-              sleep(3)
-
-          if resolver is None:
-            print("Could not find a recent Stackage nightly")
-            exit(1)
-
-          lines = []
-          with open("stack.yaml", "r") as f:
-            for line in f:
-              if line.startswith("resolver: "):
-                lines.append(f"resolver: {resolver}")
-              else:
-                lines.append(line)
-          with open("stack.yaml", "w") as f:
-            f.write("\n".join(lines))
-            f.write("\n")
+          regex='^200 https://www\.stackage\.org/(nightly-20..-..-..)$'
+          if [[ $result =~ $regex ]]; then
+              release=${BASH_REMATCH[1]}
+              perl -pi -e "s/^resolver: .+/resolver: $release/" stack.yaml
+              echo "Using Stackage $release"
+          else
+              echo 'Could not look up the latest Stackage nightly'
+              exit 1
+          fi
 
       - name: Retrieve .stack from cache
         uses: actions/cache@v3
