@@ -25,14 +25,22 @@ source-repository head
 executable pnbackup
   hs-source-dirs:      src
   main-is:             Main.hs
-  other-modules:       Paths_pinboard_notes_backup Pinboard Types Utils Utils.FriendlyReqError
+  other-modules:       Paths_pinboard_notes_backup
+                       Pinboard
+                       Types
+                       Utils
+                       Utils.FriendlyReqError
+                       Utils.HttpConfig
   default-language:    Haskell2010
   build-depends:       base                   >= 4.7  && < 5
                        , aeson                >= 0.8  && < 2.3
                        , ansi-wl-pprint       >= 0.6  && < 1.1
                        , bytestring           >= 0.10 && < 0.13
                        , containers           >= 0.5  && < 0.8
+                       , crypton-connection
+                       , data-default-class
                        , http-client          >= 0.5  && < 0.8
+                       , http-client-tls
                        , http-types           >= 0.12 && < 0.13
                        , mtl                  >= 2.2  && < 2.4
                        , optparse-applicative >= 0.11 && < 0.19
@@ -40,7 +48,7 @@ executable pnbackup
                        , sqlite-simple        >= 0.4  && < 0.5
                        , text                 >= 1.2  && < 2.2
                        , time                 >= 1.5  && < 1.15
-                       , tls                             < 2.0
+                       , tls
   default-extensions:  DataKinds
                        DeriveFunctor
                        GeneralizedNewtypeDeriving

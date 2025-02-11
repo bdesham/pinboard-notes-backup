@@ -1,5 +1,6 @@
 module Utils ( count
              , friendlyReqError
+             , makeHttpConfig
              , pluralize
              , putStrLnErr
              ) where
@@ -9,6 +10,7 @@ import Data.Text (Text, pack)
 import Data.Text.IO (hPutStrLn)
 import System.IO (hFlush, stderr, stdout)
 import Utils.FriendlyReqError (friendlyReqError)
+import Utils.HttpConfig (makeHttpConfig)
 
 -- | Counts the number of occurrences of the given value within the given list.
 count :: (Eq a, Foldable t) => a -> t a -> Int

@@ -27,7 +27,7 @@ import Database.SQLite.Simple
 import Network.HTTP.Req
 import Paths_pinboard_notes_backup (version)
 import Types
-import Utils (count, friendlyReqError)
+import Utils (count, friendlyReqError, makeHttpConfig)
 
 
 -- * Constants
@@ -78,6 +78,9 @@ newtype PinboardM a = Thing {
 instance MonadHttp PinboardM where
     handleHttpException :: HttpException -> PinboardM a
     handleHttpException = throwError . friendlyReqError
+
+    getHttpConfig :: PinboardM HttpConfig
+    getHttpConfig = liftIO makeHttpConfig
 
 runPinboard :: String -> Verbosity -> PinboardM a -> IO (Either Text a)
 runPinboard token verbosity k =
