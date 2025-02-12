@@ -4,6 +4,10 @@ These version numbers approximately follow the [Haskell Package Versioning Polic
 
 [PVP]: https://pvp.haskell.org/
 
+## 1.0.7 (2025-02-11)
+
+The program should now build with any version of the `tls` library. (In our previous release, 1.0.6, we started requiring a pre-2.0 version of `tls` to avoid [issue #1](https://github.com/bdesham/pinboard-notes-backup/issues/1). This was an unnecessarily brittle solution: newer versions of `tls` work fine as long as we configure them properly.)
+
 ## 1.0.6 (2025-02-01)
 
 - If the database contains two notes with the same ID, the program will now abort rather than try to update any of them. (A database constraint should have prevented this situation from ever occurring; this is more of a “belt and braces” change than anything.)
