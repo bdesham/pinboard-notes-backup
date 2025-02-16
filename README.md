@@ -68,9 +68,6 @@ to build the `pnbackup` binary and install it. You may of course specify a diffe
 
 You can also build the project with cabal-install, but I’m less familiar with that approach.
 
-> [!WARNING]
-> The project currently doesn’t build with cabal-install: the tool isn’t able to satisfy all of the version requirements given in the cabal file. It’s possible that some manual intervention could guide cabal-install toward a solution, but I’m not sure. The sticking point is the `tls < 2.0` constraint that prevents issue #1 from occurring at runtime.
-
 This project [uses GitHub Actions][actions] for automated building. The build is checked on the latest versions of macOS and Ubuntu Linux, with various combinations of Stack, cabal-install, and GHC 8.6 through 9.8.
 
 [actions]: https://github.com/bdesham/pinboard-notes-backup/actions
