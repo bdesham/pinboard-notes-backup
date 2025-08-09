@@ -4,6 +4,10 @@ These version numbers approximately follow the [Haskell Package Versioning Polic
 
 [PVP]: https://pvp.haskell.org/
 
+## 1.0.7.1 (2025-08-09)
+
+The program now builds against a wider set of dependencies. There were no changes in functionality.
+
 ## 1.0.7 (2025-02-11)
 
 The program should now build with any version of the `tls` library. (In our previous release, 1.0.6, we started requiring a pre-2.0 version of `tls` to avoid [issue #1](https://github.com/bdesham/pinboard-notes-backup/issues/1). This was an unnecessarily brittle solution: newer versions of `tls` work fine as long as we configure them properly.)
