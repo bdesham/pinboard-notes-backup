@@ -43,7 +43,7 @@ executable pnbackup
                        , http-client-tls      >= 0.3.2 && < 0.4
                        , http-types           >= 0.12  && < 0.13
                        , mtl                  >= 2.2   && < 2.4
-                       , optparse-applicative >= 0.11  && < 0.19
+                       , optparse-applicative >= 0.11  && < 0.20
                        , req                  >= 1.0   && < 3.14
                        , sqlite-simple        >= 0.4   && < 0.5
                        , text                 >= 1.2   && < 2.2
