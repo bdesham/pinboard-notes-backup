@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build against latest Stackage nightly
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Overwrite stack.yaml to use latest nightly
         shell: bash
@@ -29,7 +29,7 @@ jobs:
           fi
 
       - name: Retrieve .stack from cache
-        uses: actions/cache@v3
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         env:
           cache-name: cache-stack-work
         with:
@@ -40,7 +40,7 @@ jobs:
             stack-${{ runner.os }}-
 
       - name: Set up Haskell
-        uses: haskell-actions/setup@v2.7.9
+        uses: haskell-actions/setup@cd0d9bdd65b20557f41bea4dbe43d0b5fbbfe553 # v2.11.0
         with:
           ghc-version: latest
           enable-stack: true

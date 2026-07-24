@@ -1,5 +1,8 @@
 name: Build
 on: push
+defaults:
+  run:
+    shell: bash
 jobs:
   cabal-build:
     runs-on: ${{ matrix.os }}
@@ -30,6 +33,9 @@ jobs:
           - os: ubuntu-latest
             ghc: "9.8"
             cabal: latest
+          - os: ubuntu-latest
+            ghc: "9.10"
+            cabal: latest
           # Test with older versions of Cabal
           - os: ubuntu-latest
             ghc: "8.6"
@@ -42,14 +48,14 @@ jobs:
             ghc: "8.10"
             cabal: latest
           - os: macOS-latest
-            ghc: "9.8"
+            ghc: "9.10"
             cabal: latest
     name: Cabal ${{ matrix.cabal }} and GHC ${{ matrix.ghc }} on ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Retrieve .cabal from cache
-        uses: actions/cache@v3
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         env:
           cache-name: cache-cabal
         with:
@@ -60,7 +66,7 @@ jobs:
             cabal-${{ runner.os }}-
 
       - name: Set up Haskell
-        uses: haskell-actions/setup@v2.7.9
+        uses: haskell-actions/setup@cd0d9bdd65b20557f41bea4dbe43d0b5fbbfe553 # v2.11.0
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: ${{ matrix.cabal }}
@@ -87,10 +93,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Retrieve .stack from cache
-        uses: actions/cache@v3
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         env:
           cache-name: cache-stack-work
         with:
@@ -100,7 +106,7 @@ jobs:
             stack-${{ runner.os }}-
 
       - name: Set up Haskell
-        uses: haskell-actions/setup@v2.7.9
+        uses: haskell-actions/setup@cd0d9bdd65b20557f41bea4dbe43d0b5fbbfe553 # v2.11.0
         with:
           enable-stack: true
           stack-version: latest
@@ -118,23 +124,24 @@ jobs:
       - name: Set environment variables
         if: "startsWith(github.ref, 'refs/tags/v')"
         run: |
-          REF=${{ github.ref }}
-          VERSION=${REF/refs\/tags\/v/}
-          LABEL=pinboard-notes-backup-$VERSION
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "LABEL=$LABEL" >> $GITHUB_ENV
+          REF="${{ github.ref }}"
+          VERSION="${REF/refs\/tags\/v/}"
+          LABEL="pinboard-notes-backup-$VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "LABEL=$LABEL" >> "$GITHUB_ENV"
 
       - name: Create release tarball
         if: "startsWith(github.ref, 'refs/tags/v')"
+        env:
+          OS: ${{ runner.os }}
         run: |
-          OS=$(echo "${{ runner.os }}" | tr '[A-Z]' '[a-z]')
-          mkdir $LABEL
-          stack --no-terminal install --local-bin-path=$LABEL
-          cp README.md LICENSE.txt man/pnbackup.1 $LABEL
-          tar -czvf $LABEL-$OS.tar.gz $LABEL
+          mkdir "$LABEL"
+          stack --no-terminal install --local-bin-path="$LABEL"
+          cp README.md LICENSE.txt man/pnbackup.1 "$LABEL"
+          tar -czvf "$LABEL-${OS@L}.tar.gz" "$LABEL"
 
       - name: Add release assets
-        uses: softprops/action-gh-release@v2.2.1
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2.2.1
         if: "startsWith(github.ref, 'refs/tags/v')"
         with:
           draft: true
