@@ -49,7 +49,7 @@ jobs:
         run: cabal v2-build
 
       - name: Run the application
-        run: cabal run -- --version
+        run: cabal run pnbackup -- --version
 
   stack-build:
     runs-on: ${{ matrix.os }}
