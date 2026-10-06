@@ -20,7 +20,7 @@ extra-source-files:  CHANGELOG.md
 
 source-repository head
   type:     git
-  location: git://github.com/bdesham/pinboard-notes-backup.git
+  location: https://github.com/bdesham/pinboard-notes-backup.git
 
 executable pnbackup
   hs-source-dirs:      src
